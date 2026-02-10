@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Register – PhotoStudioPro</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+  </style>
+</head>
+
+<body class="bg-gray-50 text-gray-800">
+
+<!-- NAVBAR (UNCHANGED) -->
+<header class="fixed top-0 w-full z-50 glass shadow-sm">
+  <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+    <h1 class="text-2xl font-extrabold text-indigo-600">PhotoStudio<span class="text-gray-800">Pro</span></h1>
+    <nav class="space-x-6 hidden md:block">
+      <a href="/" class="hover:text-indigo-600">Home</a>
+      <a href="/features" class="hover:text-indigo-600">Features</a>
+      <a href="/how-it-works" class="hover:text-indigo-600">How it works</a>
+      <a href="/pricing" class="hover:text-indigo-600">Pricing</a>
+      <a href="/contact" class="hover:text-indigo-600">Contact</a>
+      <a href="/browse" class="hover:text-indigo-600">Studios</a>
+      <a href="/login" class="hover:text-indigo-600">Login</a>
+    </nav>
+    <a href="/register" class="bg-indigo-600 text-white px-5 py-2 rounded-xl hover:bg-indigo-700 transition">
+      Get Started
+    </a>
+  </div>
+</header>
+
+<!-- REGISTER SECTION -->
+<section class="pt-32 pb-24">
+  <div class="max-w-4xl mx-auto px-6">
+
+    <div class="bg-white rounded-3xl shadow p-10">
+      <h2 class="text-4xl font-extrabold text-center mb-2">
+        Create Your Account 🚀
+      </h2>
+      <p class="text-center text-gray-600 mb-10">
+        Join as a Studio Owner or a Client
+      </p>
+
+      <form method="POST" action="/register">
+
+        <!-- ROLE SELECTION -->
+        <div class="mb-6">
+          <label class="block font-medium mb-2">Register As</label>
+          <select name="role" id="roleSelect" required
+                  class="w-full border border-gray-300 rounded-xl px-4 py-3
+                         focus:ring-2 focus:ring-indigo-500 outline-none">
+            <option value="">Select Role</option>
+            <option value="studio">Photo Studio</option>
+            <option value="client">Client</option>
+          </select>
+        </div>
+
+        <!-- COMMON FIELDS -->
+        <div class="grid md:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-sm font-medium mb-1">Full Name</label>
+            <input type="text" name="name" required
+                   class="w-full border rounded-xl px-4 py-3">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-1">Email Address</label>
+            <input type="email" name="email" required
+                   class="w-full border rounded-xl px-4 py-3">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-1">Phone Number</label>
+            <input type="text" name="phone"
+                   class="w-full border rounded-xl px-4 py-3">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium mb-1">Password</label>
+            <input type="password" name="password" required
+                   class="w-full border rounded-xl px-4 py-3">
+          </div>
+        </div>
+
+        <!-- STUDIO FIELDS -->
+        <div id="studioFields" class="hidden mt-8">
+
+          <h3 class="text-xl font-bold mb-4">Studio Information</h3>
+
+          <div class="grid md:grid-cols-2 gap-6">
+            <div>
+              <label class="block text-sm font-medium mb-1">Studio Name</label>
+              <input type="text" name="studio_name"
+                     class="w-full border rounded-xl px-4 py-3">
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium mb-1">City</label>
+              <input type="text" name="city"
+                     class="w-full border rounded-xl px-4 py-3">
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium mb-1">Studio Address</label>
+              <input type="text" name="address"
+                     class="w-full border rounded-xl px-4 py-3">
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium mb-1">Website (Optional)</label>
+              <input type="url" name="website"
+                     class="w-full border rounded-xl px-4 py-3">
+            </div>
+          </div>
+        </div>
+
+        <!-- SUBMIT -->
+        <button type="submit"
+                class="mt-10 w-full bg-indigo-600 text-white py-4 rounded-xl
+                       font-semibold hover:bg-indigo-700 transition">
+          Create Account
+        </button>
+
+      </form>
+
+      <p class="text-center text-gray-600 mt-6">
+        Already have an account?
+        <a href="/login" class="text-indigo-600 font-semibold hover:underline">
+          Login here
+        </a>
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="py-8 bg-gray-900 text-gray-400 text-center">
+  <p>© 2025 PhotoStudioPro. All rights reserved.</p>
+</footer>
+
+<!-- SCRIPT -->
+<script>
+  const roleSelect = document.getElementById('roleSelect');
+  const studioFields = document.getElementById('studioFields');
+
+  roleSelect.addEventListener('change', function () {
+    studioFields.classList.toggle('hidden', this.value !== 'studio');
+  });
+</script>
+
+</body>
+</html>

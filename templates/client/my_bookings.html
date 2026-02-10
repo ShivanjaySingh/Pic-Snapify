@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Bookings — Pic Snapify</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .booking-row { transition: all 0.2s ease; }
+        .booking-row:hover { background-color: #f8fafc; }
+    </style>
+</head>
+
+<body class="bg-[#f8fafc] text-slate-900 min-h-screen">
+
+<header class="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg shadow-indigo-200">PS</div>
+            <h1 class="text-xl font-black tracking-tight text-slate-900">
+                Pic<span class="text-indigo-600">Snapify</span>
+            </h1>
+        </div>
+
+        <nav class="flex items-center space-x-6">
+            <a href="/browse" class="text-sm font-bold text-slate-600 hover:text-indigo-600 transition">Browse Studios</a>
+            <a href="/client/my-bookings" class="text-sm font-bold text-indigo-600 transition">Bookings</a>
+            <a href="/client/dashboard" class="text-sm font-bold text-slate-600 hover:text-indigo-600 transition">My Galleries</a>
+            
+            <div class="h-6 w-[1px] bg-slate-200"></div>
+            <a href="/logout" class="text-sm font-bold text-rose-500 hover:text-rose-700 transition">Logout</a>
+        </nav>
+    </div>
+</header>
+
+<main class="max-w-7xl mx-auto px-6 py-12">
+
+    <div class="mb-10">
+        <h2 class="text-4xl font-black text-slate-900 tracking-tight">My Bookings</h2>
+        <p class="text-slate-500 font-medium mt-2">Manage your appointments and session history.</p>
+    </div>
+
+    <div class="bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/60 border border-slate-100 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full">
+                <thead>
+                    <tr class="bg-slate-50/50 border-b border-slate-100">
+                        <th class="px-8 py-5 text-left text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Studio & Location</th>
+                        <th class="px-6 py-5 text-left text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Services</th>
+                        <th class="px-6 py-5 text-left text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Date & Time</th>
+                        <th class="px-6 py-5 text-left text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Amount</th>
+                        <th class="px-8 py-5 text-right text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Status</th>
+                    </tr>
+                </thead>
+
+                <tbody class="divide-y divide-slate-100">
+                    {% for b in bookings %}
+                    <tr class="booking-row group">
+                        <td class="px-8 py-6">
+                            <div class="font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">{{ b.studio_name }}</div>
+                            <div class="flex items-center gap-1 text-xs text-slate-400 font-medium mt-0.5">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                {{ b.city }}
+                            </div>
+                        </td>
+
+                        <td class="px-6 py-6">
+                            <span class="text-sm text-slate-600 font-medium">{{ b.services }}</span>
+                        </td>
+
+                        <td class="px-6 py-6">
+                            <div class="text-sm font-bold text-slate-700">{{ b.booking_date }}</div>
+                            <div class="text-xs text-slate-400 mt-0.5">{{ b.booking_time or 'Flexible Time' }}</div>
+                        </td>
+
+                        <td class="px-6 py-6 text-indigo-600 font-black tracking-tight">
+                            ₹{{ b.total_price }}
+                        </td>
+
+                        <td class="px-8 py-6 text-right">
+                            <span class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest
+                                {% if b.status=='pending' %} bg-amber-50 text-amber-600 border border-amber-100
+                                {% elif b.status=='confirmed' %} bg-emerald-50 text-emerald-600 border border-emerald-100
+                                {% else %} bg-rose-50 text-rose-600 border border-rose-100 {% endif %}">
+                                <span class="w-1.5 h-1.5 rounded-full
+                                    {% if b.status=='pending' %} bg-amber-600
+                                    {% elif b.status=='confirmed' %} bg-emerald-600
+                                    {% else %} bg-rose-600 {% endif %}"></span>
+                                {{ b.status }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="px-8 py-20 text-center">
+                            <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">📅</div>
+                            <h3 class="text-slate-900 font-bold">No bookings found</h3>
+                            <p class="text-slate-500 text-sm mt-1">Ready to create some memories? Browse our studios to start.</p>
+                            <a href="/browse" class="inline-block mt-6 text-indigo-600 font-black text-xs uppercase tracking-[0.2em] border-b-2 border-indigo-100 hover:border-indigo-600 transition-all">Explore Studios</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="mt-8 flex flex-col md:flex-row justify-between items-center text-slate-400 text-[10px] font-black uppercase tracking-[0.2em]">
+        <p>© 2026 StudioPro Ecosystem</p>
+        <p class="mt-4 md:mt-0">Need help? <a href="#" class="text-indigo-500 hover:text-indigo-600">Contact Support</a></p>
+    </div>
+
+</main>
+
+</body>
+</html>

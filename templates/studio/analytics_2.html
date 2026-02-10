@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Studio Analytics</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body class="bg-gray-100">
+
+<!-- SIDEBAR -->
+<aside class="fixed w-64 h-screen bg-gray-800 text-white p-6">
+  <h2 class="text-xl font-bold mb-6">Studio Panel</h2>
+  <nav class="space-y-2 text-sm">
+    <a href="/studio/dashboard" class="block px-3 py-2 rounded hover:bg-gray-700">Dashboard</a>
+    <a href="/studio/analytics" class="block px-3 py-2 rounded bg-gray-700">Analytics</a>
+    <a href="/studio/photo-management" class="block px-3 py-2 rounded hover:bg-gray-700">Photos</a>
+    <a href="/studio/video-management" class="block px-3 py-2 rounded hover:bg-gray-700">Videos</a>
+  </nav>
+</aside>
+
+<!-- CONTENT -->
+<main class="ml-64 p-8 space-y-8">
+
+<!-- KPI CARDS -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+  <div class="bg-white p-5 rounded shadow">
+    <p class="text-gray-500 text-sm">Galleries</p>
+    <p class="text-2xl font-bold">{{ total_galleries }}</p>
+  </div>
+  <div class="bg-white p-5 rounded shadow">
+    <p class="text-gray-500 text-sm">Photos</p>
+    <p class="text-2xl font-bold">{{ total_images }}</p>
+  </div>
+  <div class="bg-white p-5 rounded shadow">
+    <p class="text-gray-500 text-sm">Videos</p>
+    <p class="text-2xl font-bold">{{ total_videos }}</p>
+  </div>
+
+</div>
+
+<!-- CHARTS -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+  <div class="bg-white p-6 rounded shadow">
+    <h3 class="font-semibold mb-4">Uploads Trend</h3>
+    <canvas id="uploadChart"></canvas>
+  </div>
+
+  <div class="bg-white p-6 rounded shadow">
+    <h3 class="font-semibold mb-4">Likes Distribution</h3>
+    <canvas id="likesChart"></canvas>
+  </div>
+
+</div>
+
+</main>
+
+<script>
+const uploadChart = new Chart(document.getElementById('uploadChart'), {
+  type: 'line',
+  data: {
+    labels: {{ image_trend | map(attribute='d') | list | tojson }},
+    datasets: [
+      {
+        label: 'Images',
+        data: {{ image_trend | map(attribute='c') | list | tojson }},
+        borderWidth: 2
+      },
+      {
+        label: 'Videos',
+        data: {{ video_trend | map(attribute='c') | list | tojson }},
+        borderWidth: 2
+      }
+    ]
+  }
+});
+
+const likesChart = new Chart(document.getElementById('likesChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Photo Likes', 'Video Likes'],
+    datasets: [{
+      data: [{{ image_likes }}, {{ video_likes }}]
+    }]
+  }
+});
+</script>
+
+</body>
+</html>

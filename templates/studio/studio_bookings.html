@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en" x-data="{ sidebarOpen: window.innerWidth > 768 }">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Bookings — Pic Snapify</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.15.0/dist/cdn.min.js" defer></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        [x-cloak] { display: none !important; }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-[#f8fafc] text-slate-900">
+
+<aside 
+    :class="sidebarOpen ? 'w-72 translate-x-0' : 'w-20 -translate-x-full md:translate-x-0'" 
+    class="fixed inset-y-0 left-0 z-[50] bg-slate-900 text-slate-300 transition-all duration-300 ease-in-out flex flex-col shadow-2xl border-r border-slate-800"
+    x-cloak>
+    
+    <div class="flex items-center justify-between p-4 h-20 border-b border-slate-800/50">
+        <div class="flex items-center gap-3 overflow-hidden">
+            <div class="min-w-[40px] h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold">PS</div>
+            <h1 x-show="sidebarOpen" class="text-xl font-bold text-white tracking-tight">Pic Snapify</h1>
+        </div>
+        <button @click="sidebarOpen = !sidebarOpen" class="p-2 hover:bg-slate-800 rounded-lg text-slate-400 transition-transform" :class="!sidebarOpen && 'rotate-180'">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path></svg>
+        </button>
+    </div>
+
+    <nav class="flex-1 px-3 py-6 space-y-2 overflow-y-auto custom-scrollbar">
+        <a href="/studio/dashboard" class="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-slate-800 transition-all">
+            <span class="text-xl">🏠</span>
+            <span x-show="sidebarOpen" class="font-medium">Dashboard</span>
+        </a>
+        <a href="/studio/profile" class="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-slate-800 transition-all">
+            <span class="text-xl">👤</span>
+            <span x-show="sidebarOpen" class="font-medium">Profile</span>
+        </a>
+        <a href="/studio/services" class="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-slate-800 transition-all">
+            <span class="text-xl">📸</span>
+            <span x-show="sidebarOpen" class="font-medium">Services</span>
+        </a>
+        <a href="/studio/bookings" class="flex items-center gap-4 px-4 py-3 rounded-xl bg-indigo-600 text-white shadow-lg shadow-indigo-500/20">
+            <span class="text-xl">📅</span>
+            <span x-show="sidebarOpen" class="font-medium">Bookings</span>
+        </a>
+        <a href="/studio/analytics" class="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-slate-800 transition-all">
+            <span class="text-xl">📊</span>
+            <span x-show="sidebarOpen" class="font-medium">Analytics</span>
+        </a>
+        <a href="/studio/logout" class="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-rose-900/30 text-rose-400 mt-10">
+            <span class="text-xl">🚪</span>
+            <span x-show="sidebarOpen" class="font-medium">Logout</span>
+        </a>
+    </nav>
+</aside>
+
+<main :class="sidebarOpen ? 'md:ml-72' : 'md:ml-20'" class="transition-all duration-300 min-h-screen">
+
+    <header class="bg-white border-b border-slate-200 px-8 py-6 sticky top-0 z-40 backdrop-blur-md bg-white/80">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div>
+                <h1 class="text-2xl font-black text-slate-900 tracking-tight">Booking Management</h1>
+                <p class="text-slate-500 text-sm font-medium mt-1">Schedule for <span class="text-indigo-600">{{ studio.studio_name }}</span></p>
+            </div>
+            <div class="flex gap-2">
+                <span class="bg-indigo-50 text-indigo-700 text-xs font-black px-3 py-1 rounded-full uppercase tracking-widest">{{ bookings|length }} Total</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="p-8 max-w-7xl mx-auto">
+        <div class="bg-white rounded-[2rem] border border-slate-200 shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50/50 border-b border-slate-100">
+                            <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Client Details</th>
+                            <th class="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Service</th>
+                            <th class="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Date & Time</th>
+                            <th class="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
+                            <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-50">
+                        {% for booking in bookings %}
+                        <tr class="hover:bg-slate-50/50 transition-colors">
+                            <td class="px-8 py-6">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-500 text-sm">
+                                        {{ booking.client_name[:1] }}
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-slate-900">{{ booking.client_name }}</p>
+                                        <p class="text-xs text-slate-400 font-medium">{{ booking.client_email }}</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-6 text-sm">
+                                <span class="font-semibold text-slate-700">{{ booking.service_name }}</span>
+                            </td>
+                            <td class="px-6 py-6">
+                                <p class="text-sm font-bold text-slate-900">{{ booking.booking_date }}</p>
+                                <p class="text-[11px] text-indigo-500 font-black uppercase tracking-tighter mt-0.5">{{ booking.booking_time or 'TBD' }}</p>
+                            </td>
+                            <td class="px-6 py-6">
+                                {% if booking.status == 'confirmed' %}
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-emerald-50 text-emerald-600 ring-1 ring-emerald-500/20">Confirmed</span>
+                                {% elif booking.status == 'cancelled' %}
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-rose-50 text-rose-600 ring-1 ring-rose-500/20">Cancelled</span>
+                                {% else %}
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-amber-50 text-amber-600 ring-1 ring-amber-500/20">{{ booking.status }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-8 py-6">
+                                <div class="flex justify-end gap-2">
+                                    {% if booking.status != 'confirmed' %}
+                                    <a href="/studio/bookings/update/{{ booking.id }}/confirmed"
+                                       class="p-2 bg-emerald-50 text-emerald-600 rounded-xl hover:bg-emerald-600 hover:text-white transition-all shadow-sm" title="Confirm Booking">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                    </a>
+                                    {% endif %}
+                                    
+                                    {% if booking.status != 'cancelled' %}
+                                    <a href="/studio/bookings/update/{{ booking.id }}/cancelled"
+                                       class="p-2 bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-600 hover:text-white transition-all shadow-sm" 
+                                       onclick="return confirm('Are you sure you want to cancel this booking?')" title="Cancel Booking">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                    </a>
+                                    {% endif %}
+
+                                    <a href="/studio/invoice/{{ booking.id }}" class="p-2 bg-slate-100 text-slate-600 rounded-xl hover:bg-slate-900 hover:text-white transition-all shadow-sm" title="View Invoice">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" class="px-8 py-20 text-center">
+                                <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">📅</div>
+                                <p class="text-slate-400 font-bold uppercase tracking-widest text-xs">No active bookings found</p>
+                                <p class="text-slate-500 text-sm mt-1">Bookings from clients will appear here automatically.</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+
+</body>
+</html>

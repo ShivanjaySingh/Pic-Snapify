@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en" x-data="{ sidebarOpen: window.innerWidth > 768 }">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Studio Analytics - Pic Snapify</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/alpinejs@3.15.0/dist/cdn.min.js" defer></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .chart-container { position: relative; height: 250px; width: 100%; }
+        [x-cloak] { display: none !important; }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-[#f8fafc] text-slate-900">
+
+<div x-show="sidebarOpen && window.innerWidth < 768" 
+     class="fixed inset-0 bg-slate-900/50 z-[45]" 
+     @click="sidebarOpen = false" x-cloak></div>
+
+<aside 
+    :class="sidebarOpen ? 'w-72 translate-x-0' : 'w-20 -translate-x-full md:translate-x-0'" 
+    class="fixed inset-y-0 left-0 z-[50] bg-slate-900 text-slate-300 transition-all duration-300 ease-in-out flex flex-col shadow-2xl overflow-hidden border-r border-slate-800"
+    x-cloak>
+    
+    <div class="flex items-center justify-between p-4 h-20 border-b border-slate-800/50 shrink-0">
+        <div class="flex items-center gap-3 overflow-hidden">
+            <div class="min-w-[40px] h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg shadow-indigo-500/20">PS</div>
+            <h1 x-show="sidebarOpen" x-transition class="text-xl font-bold text-white tracking-tight whitespace-nowrap">Pic Snapify</h1>
+        </div>
+        <button @click="sidebarOpen = !sidebarOpen" class="p-2 hover:bg-slate-800 rounded-lg transition-colors text-slate-400 hover:text-white">
+            <svg class="w-6 h-6 transition-transform duration-300" :class="!sidebarOpen && 'rotate-180'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path>
+            </svg>
+        </button>
+    </div>
+
+    <nav class="flex-1 px-3 py-6 space-y-2 overflow-y-auto overflow-x-hidden custom-scrollbar">
+        <div class="text-[10px] font-bold text-slate-500 uppercase px-4 mb-4 tracking-widest whitespace-nowrap" x-show="sidebarOpen">Main Menu</div>
+        
+        <template x-for="link in [
+            { name: 'Dashboard', icon: '🏠', url: '/studio/dashboard' },
+            { name: 'Profile', icon: '👤', url: '/studio/profile' },
+            { name: 'Services', icon: '📸', url: '/studio/services' },
+            { name: 'Bookings', icon: '📅', url: '/studio/bookings' },
+            { name: 'Clients', icon: '👥', url: '/studio/clients' },
+            { name: 'Gallery', icon: '🖼️', url: '/studio/gallery-management' },
+            { name: 'Analytics', icon: '📊', url: '/studio/analytics' },
+            { name: 'Enquiries', icon: '📩', url: '/studio/contact-requests' }
+        ]">
+            <a :href="link.url" 
+               class="flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 group relative"
+               :class="window.location.pathname === link.url ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'hover:bg-slate-800 hover:text-white'">
+                <span class="text-xl min-w-[24px] flex justify-center" x-text="link.icon"></span>
+                <span x-show="sidebarOpen" class="font-medium whitespace-nowrap" x-text="link.name"></span>
+            </a>
+        </template>
+
+        <div class="border-t border-slate-800 my-4 pt-4 space-y-2">
+            <a href="/browse" class="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition">
+                <span class="text-xl min-w-[24px] flex justify-center">🌐</span>
+                <span x-show="sidebarOpen" class="font-medium">Browse Studios</span>
+            </a>
+            <a href="/studio/logout" class="flex items-center gap-4 px-4 py-3 rounded-xl text-red-400 hover:bg-red-500/10 transition">
+                <span class="text-xl min-w-[24px] flex justify-center">🚪</span>
+                <span x-show="sidebarOpen" class="font-medium">Logout</span>
+            </a>
+        </div>
+    </nav>
+</aside>
+
+<main :class="sidebarOpen ? 'md:ml-72' : 'md:ml-20'" class="transition-all duration-300 min-h-screen">
+    
+    <header class="bg-white/80 backdrop-blur-md sticky top-0 z-40 border-b border-slate-200 px-6 py-4">
+        <div class="flex justify-between items-center max-w-7xl mx-auto">
+            <div class="flex items-center gap-4">
+                <button @click="sidebarOpen = !sidebarOpen" class="md:hidden p-2 bg-slate-100 rounded-lg">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                </button>
+                <h2 class="text-xl font-bold text-slate-900">Analytics</h2>
+            </div>
+            <div class="flex items-center gap-2 text-sm font-semibold bg-emerald-50 text-emerald-700 px-4 py-2 rounded-full border border-emerald-100">
+                <span class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+                Live Data Feed
+            </div>
+        </div>
+    </header>
+
+    <div class="p-6 lg:p-10 space-y-8 max-w-7xl mx-auto">
+
+        <div>
+            <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Analytics Overview</h1>
+            <p class="text-slate-500 font-medium">Data-driven insights for your studio performance</p>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 lg:gap-6">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition">
+                <p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Galleries</p>
+                <p class="text-3xl font-black text-slate-900">{{ total_galleries }}</p>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition">
+                <p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Photos</p>
+                <p class="text-3xl font-black text-slate-900">{{ total_images }}</p>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition">
+                <p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Videos</p>
+                <p class="text-3xl font-black text-slate-900">{{ total_videos }}</p>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition border-b-4 border-b-pink-500">
+                <p class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Total Likes</p>
+                <p class="text-3xl font-black text-slate-900">{{ image_likes + video_likes }}</p>
+            </div>
+        </div>
+
+        <div class="bg-slate-900 rounded-2xl p-6 lg:p-8 text-white shadow-xl relative overflow-hidden group">
+            <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                {% if subscription %}
+                <div class="space-y-1">
+                    <span class="bg-indigo-500/20 text-indigo-300 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-widest">Active Plan</span>
+                    <h3 class="text-2xl font-bold">{{ subscription.name }}</h3>
+                    <p class="text-slate-400 text-sm">Your subscription expires in <strong>{{ subscription.days_left }} days</strong></p>
+                </div>
+                <div class="flex-1 max-w-md w-full">
+                    <div class="flex justify-between text-xs mb-2 font-semibold">
+                        <span>Usage Progress</span>
+                        <span>{{ subscription.days_left }} days left</span>
+                    </div>
+                    <div class="w-full bg-slate-700 rounded-full h-3">
+                        <div id="subProgress" class="bg-indigo-500 h-3 rounded-full shadow-[0_0_15px_rgba(99,102,241,0.5)] transition-all duration-1000" style="width: 0%"></div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-slate-800 rounded-full flex items-center justify-center text-xl">⚠️</div>
+                    <p class="font-semibold text-slate-300">No active subscription found. <a href="#" class="text-indigo-400 underline ml-2">Upgrade now</a></p>
+                </div>
+                {% endif %}
+            </div>
+            <div class="absolute -right-10 -top-10 w-40 h-40 bg-indigo-500/10 rounded-full blur-3xl"></div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between">
+                <p class="text-sm font-semibold text-slate-500">Total Bookings</p>
+                <p class="text-4xl font-black text-slate-900 mt-2">{{ bookings.total }}</p>
+            </div>
+            <div class="bg-emerald-50 p-6 rounded-2xl shadow-sm border border-emerald-100 flex flex-col justify-between">
+                <p class="text-sm font-bold text-emerald-700">Accepted</p>
+                <p class="text-4xl font-black text-emerald-800 mt-2">{{ bookings.accepted }}</p>
+            </div>
+            <div class="bg-rose-50 p-6 rounded-2xl shadow-sm border border-rose-100 flex flex-col justify-between">
+                <p class="text-sm font-bold text-rose-700">Rejected</p>
+                <p class="text-4xl font-black text-rose-800 mt-2">{{ bookings.rejected }}</p>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between">
+                <p class="text-sm font-semibold text-slate-500">Contact Requests</p>
+                <p class="text-4xl font-black text-slate-900 mt-2">{{ contact_requests }}</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <h3 class="font-bold text-slate-800 flex items-center gap-2 mb-6">
+                    <span class="w-1.5 h-6 bg-indigo-500 rounded-full"></span> Uploads Trend
+                </h3>
+                <div class="chart-container"><canvas id="uploadChart"></canvas></div>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <h3 class="font-bold text-slate-800 flex items-center gap-2 mb-6">
+                    <span class="w-1.5 h-6 bg-pink-500 rounded-full"></span> Likes Distribution
+                </h3>
+                <div class="chart-container"><canvas id="likesChart"></canvas></div>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <h3 class="font-bold text-slate-800 flex items-center gap-2 mb-6">
+                    <span class="w-1.5 h-6 bg-emerald-500 rounded-full"></span> Bookings Status
+                </h3>
+                <div class="chart-container"><canvas id="bookingChart"></canvas></div>
+            </div>
+            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <h3 class="font-bold text-slate-800 flex items-center gap-2 mb-6">
+                    <span class="w-1.5 h-6 bg-amber-500 rounded-full"></span> Media Summary
+                </h3>
+                <div class="chart-container"><canvas id="mediaChart"></canvas></div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+Chart.defaults.color = '#64748b';
+
+// 1. Uploads Trend
+const uploadCtx = document.getElementById('uploadChart').getContext('2d');
+new Chart(uploadCtx, {
+    type: 'line',
+    data: {
+        labels: {{ image_trend | map(attribute='d') | list | tojson }},
+        datasets: [
+            { 
+                label: 'Images', 
+                data: {{ image_trend | map(attribute='c') | list | tojson }}, 
+                borderColor: '#6366f1',
+                backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                fill: true,
+                tension: 0.4 
+            },
+            { 
+                label: 'Videos', 
+                data: {{ video_trend | map(attribute='c') | list | tojson }}, 
+                borderColor: '#10b981',
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                fill: true,
+                tension: 0.4 
+            }
+        ]
+    },
+    options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+});
+
+// 2. Likes Distribution
+const likesCtx = document.getElementById('likesChart').getContext('2d');
+new Chart(likesCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Photos', 'Videos'],
+        datasets: [{ 
+            data: [{{ image_likes }}, {{ video_likes }}],
+            backgroundColor: ['#ec4899', '#6366f1'],
+            hoverOffset: 10
+        }]
+    },
+    options: { maintainAspectRatio: false, cutout: '70%', plugins: { legend: { position: 'bottom' } } }
+});
+
+// 3. Bookings status
+const bookingCtx = document.getElementById('bookingChart').getContext('2d');
+new Chart(bookingCtx, {
+    type: 'bar',
+    data: {
+        labels: ['Accepted', 'Rejected'],
+        datasets: [{ 
+            label: 'Bookings',
+            data: [{{ bookings.accepted }}, {{ bookings.rejected }}],
+            backgroundColor: ['#10b981', '#f43f5e'],
+            borderRadius: 8
+        }]
+    },
+    options: { 
+        maintainAspectRatio: false, 
+        scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } },
+        plugins: { legend: { display: false } }
+    }
+});
+
+// 4. Media Summary
+const mediaCtx = document.getElementById('mediaChart').getContext('2d');
+new Chart(mediaCtx, {
+    type: 'pie',
+    data: {
+        labels: ['Photos', 'Videos'],
+        datasets: [{ 
+            data: [{{ total_images }}, {{ total_videos }}],
+            backgroundColor: ['#f59e0b', '#6366f1']
+        }]
+    },
+    options: { maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+});
+
+{% if subscription %}
+// Animate progress bar (Logic preserved)
+setTimeout(() => {
+    document.getElementById('subProgress').style.width =
+    (({{ subscription.total_days }} - {{ subscription.days_left }}) / {{ subscription.total_days }}) * 100 + '%';
+}, 500);
+{% endif %}
+</script>
+
+</body>
+</html>

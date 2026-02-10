@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>PhotoStudio Pro – Smart Photo Delivery & Proofing</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .glass {
+      backdrop-filter: blur(12px);
+      background: rgba(255,255,255,0.75);
+    }
+  </style>
+</head>
+
+<body class="bg-gradient-to-br from-gray-50 via-white to-gray-100 text-gray-800">
+
+<!-- NAVBAR -->
+<header class="fixed top-0 w-full z-50 glass shadow-sm">
+  <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+    <h1 class="text-2xl font-extrabold text-indigo-600">PhotoStudio<span class="text-gray-800">Pro</span></h1>
+    <nav class="space-x-6 hidden md:block">
+      <a href="/" class="hover:text-indigo-600">Home</a>
+      <a href="/features" class="hover:text-indigo-600">Features</a>
+      <a href="/how-it-works" class="hover:text-indigo-600">How it works</a>
+      <a href="/pricing" class="hover:text-indigo-600">Pricing</a>
+      <a href="/contact" class="hover:text-indigo-600">Contact</a>
+      <a href="/browse" class="hover:text-indigo-600">Studios</a>
+      <a href="/login" class="hover:text-indigo-600">Login</a>
+    </nav>
+    <a href="/register" class="bg-indigo-600 text-white px-5 py-2 rounded-xl hover:bg-indigo-700 transition">
+      Get Started
+    </a>
+  </div>
+</header>
+
+<!-- HERO SECTION -->
+<section class="pt-32 pb-24">
+  <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-16 items-center">
+    
+    <div>
+      <h2 class="text-5xl font-extrabold leading-tight mb-6">
+        Smart Photo Delivery <br>
+        <span class="text-indigo-600">for Modern Studios</span>
+      </h2>
+      <p class="text-lg text-gray-600 mb-8">
+        List your photo studio, manage clients, deliver photos securely,
+        and let clients select their favorites — all in one powerful platform.
+      </p>
+
+      <div class="flex space-x-4">
+        <a href="/register" class="bg-indigo-600 text-white px-7 py-3 rounded-xl font-semibold hover:scale-105 transition">
+          For Studios
+        </a>
+        <a href="/register" class="border border-gray-300 px-7 py-3 rounded-xl font-semibold hover:bg-gray-100 transition">
+          For Clients
+        </a>
+      </div>
+    </div>
+
+    <!-- Hero Visual -->
+    <div class="relative">
+      <div class="absolute -top-10 -left-10 w-40 h-40 bg-indigo-200 rounded-full blur-3xl"></div>
+      <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-purple-200 rounded-full blur-3xl"></div>
+      <div class="relative bg-white rounded-3xl shadow-xl p-8">
+        <p class="font-semibold mb-3">📸 Gallery Preview</p>
+        <div class="grid grid-cols-3 gap-3">
+          <div class="h-24 bg-gray-200 rounded-lg"></div>
+          <div class="h-24 bg-gray-300 rounded-lg"></div>
+          <div class="h-24 bg-gray-200 rounded-lg"></div>
+          <div class="h-24 bg-gray-300 rounded-lg"></div>
+          <div class="h-24 bg-gray-200 rounded-lg"></div>
+          <div class="h-24 bg-gray-300 rounded-lg"></div>
+        </div>
+        <div class="mt-6 flex justify-between items-center bg-indigo-50 p-4 rounded-2xl">
+            <p class="text-sm font-bold text-indigo-700">12 Photos Selected</p>
+            <button class="text-xs font-extrabold bg-indigo-600 text-white px-4 py-2 rounded-lg">Confirm</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features" class="py-24 bg-white">
+  <div class="max-w-7xl mx-auto px-6 text-center">
+    <h3 class="text-4xl font-bold mb-6">Everything your studio needs</h3>
+    <p class="text-gray-600 mb-16">Stop using messy cloud links. Give your clients a professional, branded experience from discovery to delivery.</p>
+
+    <div class="grid md:grid-cols-3 gap-10">
+
+      <div class="p-8 rounded-2xl shadow hover:shadow-xl transition">
+        <h4 class="text-xl font-semibold mb-3">🏢 Studio Listing</h4>
+        <p class="text-gray-600">
+          Create a professional studio profile and get discovered by clients nearby.
+        </p>
+      </div>
+
+      <div class="p-8 rounded-2xl shadow hover:shadow-xl transition">
+        <h4 class="text-xl font-semibold mb-3">🖼️ Online Proofing</h4>
+        <p class="text-gray-600">
+          Upload galleries, share privately, and let clients select photos online.
+        </p>
+      </div>
+
+      <div class="p-8 rounded-2xl shadow hover:shadow-xl transition">
+        <h4 class="text-xl font-semibold mb-3">🔐 Secure Galleries</h4>
+        <p class="text-gray-600">
+          Password-protected galleries with full download and access control.
+        </p>
+      </div>
+
+      <div class="p-8 rounded-2xl shadow hover:shadow-xl transition">
+        <h4 class="text-xl font-semibold mb-3">💳 Subscription Model</h4>
+        <p class="text-gray-600">
+          Studios upgrade plans to upload photos and manage multiple clients.
+        </p>
+      </div>
+
+      <div class="p-8 rounded-2xl shadow hover:shadow-xl transition">
+        <h4 class="text-xl font-semibold mb-3">❤️ Client Selections</h4>
+        <p class="text-gray-600">
+          Clients like, select, and comment on photos with ease.
+        </p>
+      </div>
+
+      <div class="p-8 rounded-2xl shadow hover:shadow-xl transition">
+        <h4 class="text-xl font-semibold mb-3">📱 Mobile Friendly</h4>
+        <p class="text-gray-600">
+          Seamless experience across mobile, tablet, and desktop.
+        </p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how" class="py-24 bg-gray-50">
+  <div class="max-w-6xl mx-auto px-6">
+    <h3 class="text-4xl font-bold text-center mb-16">How It Works</h3>
+
+    <div class="grid md:grid-cols-4 gap-8 text-center">
+      <div>
+        <div class="text-5xl mb-3">1️⃣</div>
+        <p>Studio registers & creates profile</p>
+      </div>
+      <div>
+        <div class="text-5xl mb-3">2️⃣</div>
+        <p>Studio uploads client galleries</p>
+      </div>
+      <div>
+        <div class="text-5xl mb-3">3️⃣</div>
+        <p>Client selects favorite photos</p>
+      </div>
+      <div>
+        <div class="text-5xl mb-3">4️⃣</div>
+        <p>Final photos delivered securely</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="pricing" class="py-24 bg-indigo-600 text-white text-center">
+  <h3 class="text-4xl font-bold mb-6">Ready to Grow Your Studio?</h3>
+  <p class="mb-8 text-lg">Join hundreds of studios delivering photos smarter.</p>
+  <a href="/register" class="bg-white text-indigo-600 px-8 py-4 rounded-xl font-semibold hover:bg-gray-100 transition">
+    Start Free Trial
+  </a>
+</section>
+
+<!-- FOOTER -->
+<footer id="contact" class="py-10 bg-gray-900 text-gray-400 text-center">
+  <p>© 2025 PhotoStudioPro. All rights reserved.</p>
+</footer>
+
+</body>
+</html>

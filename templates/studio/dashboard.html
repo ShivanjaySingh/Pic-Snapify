@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en" x-data="{ sidebarOpen: window.innerWidth > 768, addServiceOpen: false }">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Studio Dashboard - Pic Snapify</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.15.0/dist/cdn.min.js" defer></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        [x-cloak] { display: none !important; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        /* Sleek scrollbar for the sidebar */
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #475569; }
+    </style>
+</head>
+<body class="bg-[#f8fafc] text-slate-900">
+
+<div x-show="sidebarOpen && window.innerWidth < 768" 
+     class="fixed inset-0 bg-slate-900/50 z-[45]" 
+     @click="sidebarOpen = false" x-cloak></div>
+
+<aside 
+    :class="sidebarOpen ? 'w-72 translate-x-0' : 'w-20 -translate-x-full md:translate-x-0'" 
+    class="fixed inset-y-0 left-0 z-[50] bg-slate-900 text-slate-300 transition-all duration-300 ease-in-out flex flex-col shadow-2xl overflow-hidden border-r border-slate-800"
+    x-cloak>
+    
+    <div class="flex items-center justify-between p-4 h-20 border-b border-slate-800/50 shrink-0">
+        <div class="flex items-center gap-3 overflow-hidden">
+            <div class="min-w-[40px] h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg shadow-indigo-500/20">PS</div>
+            <h1 x-show="sidebarOpen" x-transition class="text-xl font-bold text-white tracking-tight whitespace-nowrap">Pic Snapify</h1>
+        </div>
+        <button @click="sidebarOpen = !sidebarOpen" class="p-2 hover:bg-slate-800 rounded-lg transition-colors text-slate-400 hover:text-white">
+            <svg class="w-6 h-6 transition-transform duration-300" :class="!sidebarOpen && 'rotate-180'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path>
+            </svg>
+        </button>
+    </div>
+
+    <nav class="flex-1 px-3 py-6 space-y-2 overflow-y-auto overflow-x-hidden custom-scrollbar">
+        <div class="text-[10px] font-bold text-slate-500 uppercase px-4 mb-4 tracking-widest whitespace-nowrap" x-show="sidebarOpen">Main Menu</div>
+        
+        <template x-for="link in [
+            { name: 'Dashboard', icon: '🏠', url: '/studio/dashboard' },
+            { name: 'Profile', icon: '👤', url: '/studio/profile' },
+            { name: 'Services', icon: '📸', url: '/studio/services' },
+            { name: 'Bookings', icon: '📅', url: '/studio/bookings' },
+            { name: 'Clients', icon: '👥', url: '/studio/clients' },
+            { name: 'Gallery', icon: '🖼️', url: '/studio/gallery-management' },
+            { name: 'Analytics', icon: '📊', url: '/studio/analytics' },
+            { name: 'Enquiries', icon: '📩', url: '/studio/contact-requests' }
+        ]">
+            <a :href="link.url" 
+               class="flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 group relative"
+               :class="window.location.pathname === link.url ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'hover:bg-slate-800 hover:text-white'">
+                <span class="text-xl min-w-[24px] flex justify-center" x-text="link.icon"></span>
+                <span x-show="sidebarOpen" class="font-medium whitespace-nowrap" x-text="link.name"></span>
+                <div x-show="!sidebarOpen" class="absolute left-full ml-4 px-3 py-2 bg-slate-800 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
+                    <span x-text="link.name"></span>
+                </div>
+            </a>
+        </template>
+
+        <div class="border-t border-slate-800 my-4 pt-4 space-y-2">
+            <a href="/browse" class="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition group relative">
+                <span class="text-xl min-w-[24px] flex justify-center">🌐</span>
+                <span x-show="sidebarOpen" class="font-medium">Browse Studios</span>
+            </a>
+            <a href="/studio/logout" class="flex items-center gap-4 px-4 py-3 rounded-xl text-red-400 hover:bg-red-500/10 transition group relative">
+                <span class="text-xl min-w-[24px] flex justify-center">🚪</span>
+                <span x-show="sidebarOpen" class="font-medium">Logout</span>
+            </a>
+        </div>
+    </nav>
+    
+    <div class="p-4 border-t border-slate-800 shrink-0 bg-slate-900/50">
+        <div class="flex items-center gap-3 px-2">
+            <div class="w-8 h-8 rounded-full bg-slate-700 flex-shrink-0 border border-slate-600 overflow-hidden">
+                <img src="https://ui-avatars.com/api/?name=Admin&background=random" alt="User">
+            </div>
+            <div class="overflow-hidden transition-all duration-300" x-show="sidebarOpen">
+                <p class="text-xs font-bold text-white truncate">Studio Admin</p>
+                <p class="text-[10px] text-slate-500 truncate">v2.4.0</p>
+            </div>
+        </div>
+    </div>
+</aside>
+
+<main :class="sidebarOpen ? 'md:ml-72' : 'md:ml-20'" class="transition-all duration-300 min-h-screen">
+
+    <header class="bg-white/80 backdrop-blur-md sticky top-0 z-40 border-b border-slate-200 px-6 py-4">
+        <div class="flex flex-col sm:flex-row justify-between items-center gap-4 max-w-7xl mx-auto">
+            <div class="flex items-center gap-4">
+                <button @click="sidebarOpen = !sidebarOpen" class="md:hidden p-2 bg-slate-100 rounded-lg">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                </button>
+                <div>
+                    <h1 class="text-xl md:text-2xl font-bold text-slate-900">Welcome back, {{ studio.studio_name }}</h1>
+                    <p class="text-sm text-slate-500">Managing {{ studio.owner_name }}'s studio</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-3 bg-slate-50 p-1 pr-4 rounded-full border border-slate-200">
+                {% for photo in portfolio_photos %}
+                    {% if photo.is_home_photo %}
+                        <img src="/{{ photo.file_path }}" class="w-12 h-12 rounded-full object-cover ring-2 ring-indigo-500 ring-offset-2">
+                    {% endif %}
+                {% endfor %}
+                <span class="text-sm font-semibold text-slate-700 hidden sm:inline">Admin Panel</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="p-6 max-w-7xl mx-auto space-y-8">
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="glass-card p-6 rounded-2xl shadow-sm border-l-4 border-indigo-500 group hover:shadow-md transition-all">
+                <p class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Total Bookings</p>
+                <div class="flex items-end justify-between mt-2">
+                    <p class="text-4xl font-bold text-slate-900">{{ total_bookings }}</p>
+                    <div class="p-2 bg-indigo-50 text-indigo-600 rounded-lg group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card p-6 rounded-2xl shadow-sm border-l-4 border-emerald-500 group hover:shadow-md transition-all">
+                <p class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Active Services</p>
+                <div class="flex items-end justify-between mt-2">
+                    <p class="text-4xl font-bold text-slate-900">{{ studio.services|length }}</p>
+                    <div class="p-2 bg-emerald-50 text-emerald-600 rounded-lg group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path></svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-card p-6 rounded-2xl shadow-sm border-l-4 border-amber-500 group hover:shadow-md transition-all">
+                <p class="text-sm font-semibold text-slate-500 uppercase tracking-wider">Pending Enquiries</p>
+                <div class="flex items-end justify-between mt-2">
+                    <p class="text-4xl font-bold text-slate-900">{{ pending_enquiries }}</p>
+                    <div class="p-2 bg-amber-50 text-amber-600 rounded-lg group-hover:bg-amber-600 group-hover:text-white transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <section>
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-900">Your Services</h2>
+                    <p class="text-sm text-slate-500">Manage your offerings and pricing</p>
+                </div>
+                <button @click="addServiceOpen = true" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-semibold shadow-lg shadow-indigo-200 transition-all flex items-center gap-2">
+                    <span class="text-xl leading-none">+</span> Add Service
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% if studio.services %}
+                    {% for service in studio.services %}
+                    <div class="bg-white border border-slate-200 p-5 rounded-2xl hover:border-indigo-300 hover:shadow-xl transition-all group">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center text-2xl">📸</div>
+                            <span class="text-xl font-bold text-indigo-600">₹{{ service.price }}</span>
+                        </div>
+                        <h3 class="font-bold text-slate-800 text-lg mb-1">{{ service.service_name }}</h3>
+                        <p class="text-slate-400 text-xs uppercase tracking-widest font-semibold mb-4">Photography Service</p>
+                        <div class="flex border-t border-slate-50 pt-4 gap-4">
+                            <a href="/studio/services/delete/{{ service.id }}" class="text-red-500 text-sm font-medium hover:text-red-700 flex items-center gap-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                Delete
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="col-span-full bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl p-12 text-center">
+                        <p class="text-slate-500 font-medium italic">No services added yet. Click 'Add Service' to start!</p>
+                    </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <section class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+            <div class="p-6 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <h2 class="text-xl font-bold text-slate-900 leading-none">Recent Bookings</h2>
+                <div class="flex gap-2">
+                    <span class="px-3 py-1 bg-slate-100 text-slate-600 text-xs font-bold rounded-full uppercase tracking-tighter">Live Feed</span>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left whitespace-nowrap">
+                    <thead>
+                        <tr class="bg-slate-50 text-slate-500 text-xs font-bold uppercase tracking-wider">
+                            <th class="px-6 py-4">ID</th>
+                            <th class="px-6 py-4">Client</th>
+                            <th class="px-6 py-4">Service Details</th>
+                            <th class="px-6 py-4">Schedule</th>
+                            <th class="px-6 py-4 text-center">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        {% if bookings %}
+                            {% for booking in bookings %}
+                            <tr class="hover:bg-slate-50/50 transition-colors">
+                                <td class="px-6 py-4 font-mono text-sm text-slate-400">#{{ booking.id }}</td>
+                                <td class="px-6 py-4">
+                                    <div class="font-semibold text-slate-900">{{ booking.client_name }}</div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="text-sm text-slate-600 truncate max-w-[200px] inline-block">{{ booking.services }}</span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="text-sm font-medium text-slate-900">{{ booking.booking_date }}</div>
+                                    {% if booking.booking_time %}
+                                    <div class="text-xs text-slate-400">{{ booking.booking_time }}</div>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    {% if booking.status == 'pending' %}
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-600 ring-1 ring-inset ring-amber-600/20">Pending</span>
+                                    {% elif booking.status == 'confirmed' %}
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-600 ring-1 ring-inset ring-emerald-600/20">Confirmed</span>
+                                    {% else %}
+                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-600 ring-1 ring-inset ring-rose-600/20">Cancelled</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="px-6 py-12 text-center text-slate-400 italic">No booking history available.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <!-- Add Service Modal -->
+    <template x-if="addServiceOpen">
+        <div class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <div @click="addServiceOpen = false" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
+            <div class="bg-white rounded-3xl shadow-2xl w-full max-w-md relative z-10 overflow-hidden transform transition-all"
+                 x-transition:enter="ease-out duration-300"
+                 x-transition:enter-start="opacity-0 scale-95"
+                 x-transition:enter-end="opacity-100 scale-100">
+                <div class="p-8">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-2xl font-bold text-slate-900 tracking-tight">Add New Service</h3>
+                        <button @click="addServiceOpen = false" class="text-slate-400 hover:text-slate-600 transition text-2xl">&times;</button>
+                    </div>
+                    <form action="/studio/services/add" method="POST" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1">Service Name</label>
+                            <input type="text" name="name" placeholder="e.g. Wedding Photography" required 
+                                   class="w-full border border-slate-200 px-4 py-3 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 mb-1">Price (₹)</label>
+                            <input type="number" name="price" placeholder="0.00" required 
+                                   class="w-full border border-slate-200 px-4 py-3 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-1 block">Description</label>
+                            <textarea name="description" rows="3" class="w-full bg-slate-50 border border-slate-200 px-4 py-3 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Describe what's included in this package..."></textarea>
+                        </div>
+                        <div class="flex gap-3 mt-8">
+                            <button type="button" @click="addServiceOpen=false" class="flex-1 px-6 py-3 rounded-xl border border-slate-200 font-bold text-slate-600 hover:bg-slate-50 transition">Cancel</button>
+                            <button type="submit" class="flex-1 px-6 py-3 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 shadow-lg shadow-indigo-200 transition">Create</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </template>
+</main>
+
+</body>
+</html>

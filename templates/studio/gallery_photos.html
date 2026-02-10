@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en" x-data="{ sidebarOpen: window.innerWidth > 768 }">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ gallery.title }} - Images</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.15.0/dist/cdn.min.js" defer></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        [x-cloak] { display: none !important; }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+        
+        .heart { width: 20px; height: 20px; fill: transparent; stroke: #ffffff; stroke-width: 2; transition: all 0.3s ease; }
+        .heart.liked { fill: #ef4444; stroke: #ef4444; filter: drop-shadow(0 0 4px rgba(239, 68, 68, 0.6)); }
+    </style>
+</head>
+<body class="bg-[#f8fafc] text-slate-900">
+
+<div x-show="sidebarOpen && window.innerWidth < 768" 
+     class="fixed inset-0 bg-slate-900/50 z-[45]" 
+     @click="sidebarOpen = false" x-cloak></div>
+
+<aside 
+    :class="sidebarOpen ? 'w-72 translate-x-0' : 'w-20 -translate-x-full md:translate-x-0'" 
+    class="fixed inset-y-0 left-0 z-[50] bg-slate-900 text-slate-300 transition-all duration-300 ease-in-out flex flex-col shadow-2xl overflow-hidden border-r border-slate-800"
+    x-cloak>
+    
+    <div class="flex items-center justify-between p-4 h-20 border-b border-slate-800/50 shrink-0">
+        <div class="flex items-center gap-3 overflow-hidden">
+            <div class="min-w-[40px] h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg shadow-indigo-500/20">PS</div>
+            <h1 x-show="sidebarOpen" x-transition class="text-xl font-bold text-white tracking-tight whitespace-nowrap">Pic Snapify</h1>
+        </div>
+        <button @click="sidebarOpen = !sidebarOpen" class="p-2 hover:bg-slate-800 rounded-lg transition-colors text-slate-400 hover:text-white">
+            <svg class="w-6 h-6 transition-transform duration-300" :class="!sidebarOpen && 'rotate-180'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path>
+            </svg>
+        </button>
+    </div>
+
+    <nav class="flex-1 px-3 py-6 space-y-2 overflow-y-auto custom-scrollbar">
+        <div class="text-[10px] font-bold text-slate-500 uppercase px-4 mb-4 tracking-widest whitespace-nowrap" x-show="sidebarOpen">Gallery Actions</div>
+        
+        <template x-for="link in [
+            { name: 'Back to Management', icon: '⬅️', url: '/studio/gallery-management' },
+            { name: 'Upload More', icon: '⬆️', url: '/studio/gallery/{{ gallery.id }}/upload' },
+            { name: 'View Videos', icon: '🎥', url: '/studio/gallery/{{ gallery.id }}/videos' }
+        ]">
+            <a :href="link.url" class="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition-all duration-200">
+                <span class="text-xl min-w-[24px] flex justify-center" x-text="link.icon"></span>
+                <span x-show="sidebarOpen" class="font-medium whitespace-nowrap" x-text="link.name"></span>
+            </a>
+        </template>
+    </nav>
+</aside>
+
+<main :class="sidebarOpen ? 'md:ml-72' : 'md:ml-20'" class="transition-all duration-300 min-h-screen">
+
+    <header class="bg-white/80 backdrop-blur-md sticky top-0 z-40 border-b border-slate-200 px-6 py-4">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 max-w-7xl mx-auto">
+            <div class="flex items-center gap-4">
+                <button @click="sidebarOpen = !sidebarOpen" class="md:hidden p-2 bg-slate-100 rounded-lg">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                </button>
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-900 tracking-tight">{{ gallery.title }}</h2>
+                    <p class="text-xs text-slate-500 font-medium">Selected images appear with ❤️</p>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap gap-2">
+                <button id="toggleLiked" class="bg-white border border-slate-200 text-slate-700 px-4 py-2 rounded-xl text-sm font-bold hover:bg-slate-50 transition-all flex items-center gap-2 shadow-sm">
+                    🔍 Show Liked Photos
+                </button>
+
+                <a href="/studio/gallery/{{ gallery.id }}/download" class="bg-slate-900 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-slate-800 transition-all shadow-lg shadow-slate-200">
+                    📥 Download All
+                </a>
+
+                <a href="/studio/gallery/{{ gallery.id }}/download-liked" class="bg-rose-600 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-rose-700 transition-all shadow-lg shadow-rose-200">
+                    ❤️ Download Liked
+                </a>
+
+                <button id="deleteAll" class="bg-rose-50 text-rose-600 px-4 py-2 rounded-xl text-sm font-bold hover:bg-rose-600 hover:text-white transition-all">
+                    🗑️ Delete All
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="p-6 max-w-7xl mx-auto">
+        <div id="photoGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+            {% for photo in photos %}
+            <div class="photo-card group relative bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden transition-all hover:shadow-md"
+                 data-liked="{{ photo.is_selected }}"
+                 data-photo-id="{{ photo.id }}">
+
+                <div class="aspect-[4/5] overflow-hidden bg-slate-100">
+                    <img src="/{{ photo.image_path }}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110">
+                </div>
+
+                {% if photo.is_selected %}
+                <div class="absolute top-3 right-3 z-10">
+                    <div class="bg-white/90 backdrop-blur-md p-1.5 rounded-full shadow-lg">
+                        <svg class="heart liked" viewBox="0 0 24 24">
+                            <path d="M12 21s-7-4.35-9.5-8.28C.4 9.2 2.5 5.5 6.4 5.5c2.1 0 3.6 1.2 4.6 2.7 1-1.5 2.5-2.7 4.6-2.7 3.9 0 6 3.7 3.9 7.22C19 16.65 12 21 12 21z"/>
+                        </svg>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-3">
+                    <button class="delete-photo w-full bg-rose-600 text-white py-2 rounded-xl text-xs font-bold hover:bg-rose-700 transition-colors shadow-lg">
+                        Delete Photo
+                    </button>
+                </div>
+            </div>
+            {% else %}
+            <div class="col-span-full py-24 text-center bg-white rounded-3xl border-2 border-dashed border-slate-200">
+                <div class="text-6xl mb-4">📸</div>
+                <h3 class="text-lg font-bold text-slate-900">No photos found</h3>
+                <p class="text-slate-500">Start by uploading some images to this gallery.</p>
+                <a href="/studio/gallery/{{ gallery.id }}/upload" class="mt-4 inline-block text-indigo-600 font-bold hover:underline">Upload Images</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</main>
+
+<script>
+let showingLikedOnly = false;
+
+/* TOGGLE LIKED FILTER */
+document.getElementById('toggleLiked').addEventListener('click', function () {
+    const cards = document.querySelectorAll('.photo-card');
+    showingLikedOnly = !showingLikedOnly;
+
+    cards.forEach(card => {
+        if (showingLikedOnly && card.dataset.liked !== '1') {
+            card.style.display = 'none';
+        } else {
+            card.style.display = 'block';
+        }
+    });
+
+    this.innerHTML = showingLikedOnly
+        ? '🖼️ Show All Photos'
+        : '🔍 Show Liked Photos';
+    
+    this.classList.toggle('bg-indigo-50', showingLikedOnly);
+    this.classList.toggle('text-indigo-600', showingLikedOnly);
+});
+
+/* DELETE SINGLE PHOTO */
+document.querySelectorAll('.delete-photo').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+
+        const card = this.closest('.photo-card');
+        const photoId = card.dataset.photoId;
+
+        if (!confirm('Delete this photo permanently?')) return;
+
+        fetch(`/studio/gallery/photo/${photoId}/delete`, { method: 'POST' })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    card.style.transform = 'scale(0.9)';
+                    card.style.opacity = '0';
+                    setTimeout(() => card.remove(), 300);
+                } else {
+                    alert('Failed to delete photo');
+                }
+            });
+    });
+});
+
+/* DELETE ALL */
+document.getElementById('deleteAll').addEventListener('click', function() {
+    if (!confirm('CRITICAL: Delete ALL photos in this gallery? This cannot be undone.')) return;
+
+    fetch(`/studio/gallery/{{ gallery.id }}/delete-all`, { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                document.getElementById('photoGrid').innerHTML = `
+                    <div class="col-span-full py-24 text-center bg-white rounded-3xl border-2 border-dashed border-slate-200">
+                        <div class="text-6xl mb-4">🗑️</div>
+                        <h3 class="text-lg font-bold text-slate-900">Gallery Cleared</h3>
+                        <p class="text-slate-500">All photos have been deleted.</p>
+                    </div>`;
+            } else {
+                alert('Failed to delete photos');
+            }
+        });
+});
+</script>
+
+</body>
+</html>

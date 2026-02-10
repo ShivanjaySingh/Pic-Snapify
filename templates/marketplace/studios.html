@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Photo Studios Marketplace - Pic Snapify</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .filter-btn { @apply bg-white border border-gray-300 px-4 py-1.5 rounded-full text-sm hover:bg-indigo-50 hover:border-indigo-500 transition whitespace-nowrap; }
+    /* Custom Scrollbar for filter row on mobile */
+    .hide-scrollbar::-webkit-scrollbar { display: none; }
+    .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+<header class="bg-white shadow-sm fixed w-full z-50">
+  <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+    <a href="/browse">
+      <h1 class="text-xl font-bold text-indigo-600">Pic Snapify</h1>
+    </a>
+
+    <nav class="hidden md:flex items-center gap-6 text-sm font-semibold">
+      <a href="/browse" class="text-gray-600 hover:text-indigo-600">Home</a>
+      <a href="#" class="text-gray-600 hover:text-indigo-600">Advertise</a>
+      {% if session.get('user_id') %}
+        <a href="/client/dashboard" class="text-gray-600 hover:text-indigo-600">Dashboard</a>
+        <div class="flex items-center gap-4 ml-4 pl-4 border-l border-gray-200">
+          <span class="text-gray-500 font-normal italic">Hi, {{ session.get('user_name', 'User') }}</span>
+          <a href="/logout" class="bg-red-50 text-red-600 px-4 py-2 rounded-lg hover:bg-red-100 transition">Logout</a>
+        </div>
+      {% else %}
+        <a href="/register" class="text-indigo-600 hover:text-indigo-700">Free Listing</a>
+        <a href="/login" class="text-gray-600 hover:text-indigo-600 ml-4">Login</a>
+        <a href="/register" class="bg-indigo-600 text-white px-5 py-2 rounded-lg hover:bg-indigo-700 transition">Register</a>
+      {% endif %}
+    </nav>
+
+    <button id="mobile-btn" class="md:hidden text-gray-600 focus:outline-none">
+      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+    </button>
+  </div>
+
+  <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-100 px-4 py-4 space-y-4 shadow-lg">
+    <a href="/browse" class="block text-gray-600 font-semibold">Home</a>
+    <a href="#" class="block text-gray-600 font-semibold">Advertise</a>
+    {% if session.get('user_id') %}
+      <a href="/client/dashboard" class="block text-gray-600 font-semibold">Dashboard</a>
+      <a href="/logout" class="block text-red-600 font-semibold">Logout</a>
+    {% else %}
+      <a href="/login" class="block text-gray-600 font-semibold">Login</a>
+      <a href="/register" class="block bg-indigo-600 text-white px-4 py-2 rounded-lg text-center">Register</a>
+    {% endif %}
+  </div>
+</header>
+
+<main class="max-w-7xl mx-auto px-4 pt-20 md:pt-24 pb-10 flex flex-col lg:flex-row gap-8">
+  
+  <div class="flex-1">
+    <div class="bg-white p-4 md:p-5 rounded-2xl shadow-sm border border-gray-100 mb-8">
+      <form action="/browse" method="GET" class="flex flex-col md:flex-row gap-3">
+        <input type="text" name="name" value="{{ request.args.get('name', '') }}" 
+               placeholder="Search Studio Name..." class="flex-[2] border rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none text-sm md:text-base">
+        
+        <input type="text" name="city" value="{{ request.args.get('city', '') }}" 
+               placeholder="City..." class="flex-1 border rounded-lg px-4 py-3 focus:ring-2 focus:ring-indigo-500 outline-none text-sm md:text-base">
+        
+        <button type="submit" class="bg-indigo-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-indigo-700 transition active:scale-95">
+          Search
+        </button>
+      </form>
+      
+      <div class="mt-4 flex overflow-x-auto gap-2 hide-scrollbar pb-1">
+        <a href="/browse" class="filter-btn">All</a>
+        <a href="/browse?category=Wedding" class="filter-btn">Wedding</a>
+        <a href="/browse?category=Commercial" class="filter-btn">Commercial</a>
+        <a href="/browse?category=Maternity" class="filter-btn">Maternity</a>
+      </div>
+    </div>
+
+    <div class="space-y-6">
+      {% for studio in studios %}
+<div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition flex flex-col md:flex-row studio-card">
+    <div class="w-full md:w-64 h-48 md:h-auto bg-gray-200 relative shrink-0">
+        {% if studio.home_photo %}
+            <img src="{{ studio.home_photo }}" class="w-full h-full object-cover">
+        {% else %}
+            <div class="w-full h-full flex items-center justify-center text-gray-400 text-xs italic">No Image</div>
+        {% endif %}
+    </div>
+
+    <div class="flex-1 p-5 flex flex-col justify-between">
+        <div>
+            <div class="flex justify-between items-start gap-2">
+                <h3 class="text-lg md:text-xl font-bold text-gray-900 leading-tight">
+                    <a href="/studio/{{ studio.id }}" class="hover:text-indigo-600">{{ studio.studio_name }}</a>
+                </h3>
+                <div class="flex items-center bg-green-100 px-2 py-1 rounded shrink-0">
+                    <span class="text-green-700 font-bold text-sm">★ {{ studio.avg_rating or '0.0' }}</span>
+                </div>
+            </div>
+            <p class="text-gray-500 text-sm mt-1">{{ studio.city }}, {{ studio.address }}</p>
+            <p class="text-xs text-gray-400 mt-0.5">{{ studio.review_count or '0' }} Ratings</p>
+            <div class="flex flex-wrap gap-2 mt-4">
+                {% for service in studio.services %}
+                    <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-[10px] font-medium border border-gray-200">{{ service.service_name }}</span>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="flex flex-wrap md:flex-nowrap gap-2 mt-6">
+            <a href="tel:{{ studio.phone }}" class="flex-1 flex items-center justify-center gap-2 bg-emerald-600 text-white py-2 px-4 rounded-lg text-sm font-semibold">Call</a>
+            <a href="https://wa.me/{{ studio.phone }}" class="flex-1 text-center border-2 border-green-500 text-green-600 py-2 rounded-lg text-sm font-semibold">WhatsApp</a>
+            <a href="/enquire/{{ studio.id }}" class="flex-1 bg-indigo-600 text-white py-2 px-4 rounded-lg text-sm font-semibold text-center">Enquiry</a>
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+      {% if not studios %}
+      <div class="text-center py-16 bg-white rounded-2xl border-2 border-dashed mx-auto">
+        <p class="text-gray-500">No studios found matching your search.</p>
+        <a href="/browse" class="text-indigo-600 font-bold underline mt-2 block">Clear all filters</a>
+      </div>
+      {% endif %}
+    </div>
+    <div class="mt-12 text-center" id="load-more-section">
+                {% if studios|length == 10 %}
+                <button id="load-more-btn" data-offset="10" 
+                        class="bg-white border-2 border-indigo-600 text-indigo-600 px-10 py-3 rounded-full font-bold transition active:scale-95">
+                    Load More Studios
+                </button>
+                {% endif %}
+            </div>
+  </div>
+
+  <aside class="w-full lg:w-80 order-first lg:order-last">
+    <div class="bg-indigo-900 text-white p-6 rounded-2xl shadow-lg lg:sticky lg:top-24">
+      <h3 class="text-lg font-bold mb-2 text-indigo-200">Quick Contact</h3>
+      <p class="text-sm mb-6 opacity-80">Not sure which studio to pick? Leave your details and we'll help you find the best match.</p>
+      
+      <form method="POST" action="/send-enquiry" class="space-y-4">
+        <input type="text" name="name" placeholder="Your Name" required class="w-full px-4 py-3 rounded-lg text-gray-900 outline-none focus:ring-2 focus:ring-orange-400">
+        <input type="tel" name="mobile" placeholder="Mobile Number" required class="w-full px-4 py-3 rounded-lg text-gray-900 outline-none focus:ring-2 focus:ring-orange-400">
+        <button type="submit" class="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 rounded-lg font-bold transition shadow-lg active:scale-95">
+          Get Free Callback
+        </button>
+      </form>
+    </div>
+  </aside>
+
+</main>
+
+<script>
+  // Mobile Menu Toggle
+  const btn = document.getElementById('mobile-btn');
+  const menu = document.getElementById('mobile-menu');
+
+  btn.addEventListener('click', () => {
+    menu.classList.toggle('hidden');
+  });
+
+
+  document.getElementById('load-more-btn')?.addEventListener('click', function() {
+                const btn = this;
+                const container = document.getElementById('studio-list-container');
+                let offset = parseInt(btn.getAttribute('data-offset'));
+
+                const urlParams = new URLSearchParams(window.location.search);
+                urlParams.set('offset', offset);
+
+                btn.innerText = "Loading...";
+                
+                fetch(`${window.location.pathname}?${urlParams.toString()}`, {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(res => res.text())
+                .then(html => {
+                    if (html.trim() === "") {
+                        btn.parentElement.innerHTML = "<p class='text-gray-400'>No more studios</p>";
+                    } else {
+                        container.insertAdjacentHTML('beforeend', html);
+                        btn.setAttribute('data-offset', offset + 10);
+                        btn.innerText = "Load More Studios";
+                        
+                        // Check if we reached the end
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        if (doc.querySelectorAll('.studio-card').length < 10) {
+                            btn.style.display = 'none';
+                        }
+                    }
+                });
+            });
+</script>
+
+</body>
+</html>

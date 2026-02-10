@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Find My Photos - Pic Snapify</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-6">
+
+    <div class="max-w-md w-full bg-white rounded-3xl shadow-2xl p-8">
+        <div class="text-center">
+            <h1 class="text-2xl font-bold text-gray-800">Hi there! 👋</h1>
+            <p class="text-gray-500 mt-2">Upload a selfie to find all your photos from the event.</p>
+        </div>
+
+        <form action="/client-search/{{ gallery_id }}" method="POST" enctype="multipart/form-data" class="mt-8">
+            <div class="border-2 border-dashed border-indigo-200 rounded-2xl p-6 text-center hover:bg-indigo-50 transition">
+                <input type="file" name="selfie" id="selfie" class="hidden" accept="image/*" required onchange="preview(this)">
+                <label for="selfie" class="cursor-pointer">
+                    <div class="text-4xl mb-2">📸</div>
+                    <span class="text-indigo-600 font-semibold">Click to Take or Upload Selfie</span>
+                </label>
+                <img id="view" class="mt-4 hidden w-32 h-32 rounded-full mx-auto object-cover border-4 border-white shadow-md">
+            </div>
+
+            <button type="submit" class="w-full mt-6 bg-indigo-600 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-indigo-700 transition">
+                Find My Photos
+            </button>
+        </form>
+    </div>
+
+    <script>
+        function preview(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.getElementById('view');
+                    img.src = e.target.result;
+                    img.classList.remove('hidden');
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
+</body>
+</html>

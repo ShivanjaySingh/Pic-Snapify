@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ studio.studio_name }} - Pic Snapify</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    
+    .glass {
+        background: rgba(28, 31, 34, 0.7);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .tab-content { animation: slideUp 0.4s ease-out; }
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .gallery-img { transition: transform 0.5s ease; }
+    .gallery-img:hover { transform: scale(1.03); }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #121416; }
+    ::-webkit-scrollbar-thumb { background: #374151; border-radius: 10px; }
+    ::-webkit-scrollbar-thumb:hover { background: #4B5563; }
+  </style>
+</head>
+
+<body class="bg-[#0f1113] text-gray-200 selection:bg-indigo-500/30">
+
+<header class="glass fixed w-full z-[100] top-0 border-b border-white/5">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex justify-between items-center">
+    <a href="/browse" class="group flex items-center gap-2">
+      <div class="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center group-hover:rotate-12 transition-transform">
+        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+      </div>
+      <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">Pic Snapify</h1>
+    </a>
+
+    <nav class="hidden md:flex items-center gap-8 text-sm font-medium">
+      <a href="/browse" class="text-gray-400 hover:text-white transition">Home</a>
+      <a href="#" class="text-gray-400 hover:text-white transition">Advertise</a>
+      {% if session.get('user_id') %}
+        <a href="/client/dashboard" class="text-gray-400 hover:text-white transition">Dashboard</a>
+        <a href="/logout" class="bg-red-500/10 text-red-400 px-4 py-2 rounded-full border border-red-500/20 hover:bg-red-500 hover:text-white transition">Logout</a>
+      {% else %}
+        <a href="/login" class="text-gray-400 hover:text-white transition">Login</a>
+        <a href="/register" class="bg-indigo-600 text-white px-6 py-2.5 rounded-full hover:bg-indigo-500 transition">Register</a>
+      {% endif %}
+    </nav>
+
+    <button id="mobile-menu-btn" class="md:hidden text-gray-400 focus:outline-none">
+        <svg id="menu-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+    </button>
+  </div>
+
+  <div id="mobile-menu" class="hidden md:hidden border-t border-white/5 bg-[#0f1113]/95 backdrop-blur-lg">
+    <div class="px-4 py-6 flex flex-col gap-4 text-center">
+      <a href="/browse" class="text-gray-300 py-2">Home</a>
+      <a href="#" class="text-gray-300 py-2">Advertise</a>
+      {% if session.get('user_id') %}
+        <a href="/client/dashboard" class="text-gray-300 py-2">Dashboard</a>
+        <a href="/logout" class="text-red-400 py-2">Logout</a>
+      {% else %}
+        <a href="/login" class="text-gray-300 py-2">Login</a>
+        <a href="/register" class="bg-indigo-600 text-white py-3 rounded-xl">Register</a>
+      {% endif %}
+    </div>
+  </div>
+</header>
+
+<div class="h-20"></div>
+
+<section class="max-w-7xl mx-auto px-4 mt-8">
+  <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 rounded-2xl overflow-hidden shadow-2xl">
+    {% for photo in photos[:4] %}
+      <div class="overflow-hidden bg-gray-800 h-48 md:h-64 cursor-zoom-in">
+        <img src="/{{ photo.file_path }}" 
+             class="gallery-img h-full w-full object-cover" 
+             onclick="openLightbox({{ loop.index0 }})">
+      </div>
+    {% endfor %}
+    
+    {% if photos|length > 4 %}
+      <div class="relative overflow-hidden h-48 md:h-64 group cursor-pointer" onclick="openLightbox(4)">
+        <img src="/{{ photos[4].file_path }}" class="gallery-img h-full w-full object-cover opacity-40 group-hover:scale-110 transition">
+        <div class="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[2px]">
+          <span class="text-2xl font-bold text-white">+{{ photos|length - 4 }} <span class="text-sm block text-center font-normal">Photos</span></span>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+<div id="lightbox" class="fixed inset-0 z-[200] hidden bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center">
+    <button onclick="closeLightbox()" class="absolute top-6 right-6 text-white/70 hover:text-white transition-all z-[210]">
+        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+    </button>
+
+    <button onclick="prevImage()" class="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/5 hover:bg-white/10 text-white transition-all border border-white/10">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+    </button>
+    
+    <button onclick="nextImage()" class="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/5 hover:bg-white/10 text-white transition-all border border-white/10">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+    </button>
+
+    <div class="max-w-5xl max-h-[80vh] px-4 flex items-center justify-center">
+        <img id="lightbox-img" src="" class="max-w-full max-h-[80vh] object-contain shadow-2xl rounded-lg transform transition-transform duration-300">
+    </div>
+
+    <div class="mt-6 px-4 py-1.5 rounded-full bg-white/10 border border-white/10 text-white text-sm font-medium">
+        <span id="current-index">1</span> / {{ photos|length }}
+    </div>
+</div>
+
+<main class="max-w-7xl mx-auto px-4 mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8 pb-20">
+
+  <div class="lg:col-span-2 space-y-8">
+
+    <div class="glass rounded-3xl p-6 md:p-8 shadow-xl">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <h2 class="text-3xl md:text-4xl font-bold text-white flex items-center gap-3">
+                {{ studio.studio_name }}
+                {% if studio.verified %}
+                  <span class="flex items-center gap-1 text-[10px] uppercase tracking-wider bg-blue-500/20 text-blue-400 border border-blue-500/30 px-2.5 py-1 rounded-full">
+                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.64.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"></path></svg>
+                    Verified
+                  </span>
+                {% endif %}
+            </h2>
+            <div class="flex flex-wrap items-center gap-4 mt-4 text-sm">
+                <div class="flex items-center gap-1.5 bg-green-500/10 text-green-400 px-3 py-1 rounded-lg border border-green-500/20">
+                    <span class="text-lg">★</span>
+                    <span class="font-bold">{{ studio.avg_rating }}</span>
+                </div>
+                <!-- <span class="text-gray-500 border-l border-gray-800 pl-4">{{ studio.reviews or '20' }} Global Ratings</span> -->
+                <span class="flex items-center gap-1.5 text-green-500">
+                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                    Open until {{ studio.close_time or '7:00 PM' }}
+                </span>
+            </div>
+            <p class="text-gray-400 mt-4 flex items-center gap-2">
+                <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                {{ studio.address }}, {{ studio.city }}
+            </p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-8">    
+        <a href="tel:{{ studio.phone }}" 
+          class="flex flex-col items-center justify-center gap-2 bg-white/5 hover:bg-white/10 text-white py-4 rounded-2xl border border-white/10 transition-all active:scale-95 group">
+            <div class="p-2 bg-emerald-500/20 rounded-lg group-hover:bg-emerald-500/30 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" /></svg>
+            </div>
+            <span class="text-xs font-semibold">Call</span>
+        </a>
+
+        <a href="https://wa.me/{{ studio.phone }}" 
+          class="flex flex-col items-center justify-center gap-2 bg-white/5 hover:bg-white/10 text-white py-4 rounded-2xl border border-white/10 transition-all active:scale-95 group">
+            <div class="p-2 bg-green-500/20 rounded-lg group-hover:bg-green-500/30 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-green-500" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.27 9.27 0 01-4.726-1.29l-.339-.201-3.51.921.937-3.421-.221-.351A9.24 9.24 0 014.475 12.05c0-5.11 4.154-9.266 9.27-9.266 2.481 0 4.814.966 6.57 2.721A9.21 9.21 0 0123 12.05c0 5.111-4.155 9.267-9.27 9.267" /></svg>
+            </div>
+            <span class="text-xs font-semibold">WhatsApp</span>
+        </a>
+
+        <a href="#enquiry" 
+          class="flex flex-col items-center justify-center gap-2 bg-white/5 hover:bg-white/10 text-white py-4 rounded-2xl border border-white/10 transition-all active:scale-95 group">
+            <div class="p-2 bg-blue-500/20 rounded-lg group-hover:bg-blue-500/30 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+            </div>
+            <span class="text-xs font-semibold">Enquire</span>
+        </a>
+
+        <a href="/studio/{{ studio.id }}/book" 
+          class="flex flex-col items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white py-4 rounded-2xl shadow-lg shadow-indigo-600/20 transition-all active:scale-95 group">
+            <div class="p-2 bg-white/20 rounded-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+            </div>
+            <span class="text-xs font-bold">Book Now</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="glass rounded-3xl overflow-hidden shadow-xl">
+      <div class="flex gap-8 px-8 pt-6 text-sm font-semibold border-b border-white/5">
+        <button onclick="openTab(event, 'tab-overview')" class="tab-link text-indigo-400 border-b-2 border-indigo-500 pb-4 transition-all">Overview</button>
+        <button onclick="openTab(event, 'tab-prices')" class="tab-link text-gray-500 hover:text-white pb-4 transition-all">Price List</button>
+        <button onclick="openTab(event, 'tab-services')" class="tab-link text-gray-500 hover:text-white pb-4 transition-all">Services</button>
+      </div>
+
+      <div id="tab-overview" class="tab-content p-8 text-gray-400 leading-relaxed">
+        <p class="text-lg">
+          {{ studio.description or "Skilled photographer focusing on weddings, portraits, maternity, newborn shoots and videography services." }}
+        </p>
+        <div class="mt-8 grid grid-cols-2 gap-6 p-6 bg-white/5 rounded-2xl border border-white/5">
+          <div>
+            <span class="block text-xs uppercase tracking-widest text-gray-500 mb-1">Owner</span>
+            <p class="text-white font-medium">{{ studio.owner_name }}</p>
+          </div>
+          <div>
+            <span class="block text-xs uppercase tracking-widest text-gray-500 mb-1">Established</span>
+            <p class="text-white font-medium">{{ studio.established_year or '2010' }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div id="tab-prices" class="tab-content hidden p-8">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left">
+                <thead>
+                    <tr class="text-gray-500 text-xs uppercase tracking-widest border-b border-white/5">
+                        <th class="pb-4 font-semibold">Service Description</th>
+                        <th class="pb-4 font-semibold text-right">Starting Price</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-white/5">
+                    {% for service in services %}
+                    <tr class="group">
+                        <td class="py-4 text-gray-300 group-hover:text-white transition">{{ service.service_name }}</td>
+                        <td class="py-4 text-right text-indigo-400 font-bold">₹ {{ service.price }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+      </div>
+
+      <div id="tab-services" class="tab-content hidden p-8">
+        <ul class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {% for service in services %}
+            <li class="flex items-center gap-4 bg-white/5 p-4 rounded-2xl border border-white/5 hover:border-indigo-500/30 transition group">
+                <div class="w-8 h-8 rounded-full bg-indigo-500/20 flex items-center justify-center text-indigo-400 group-hover:bg-indigo-500 group-hover:text-white transition">
+                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+                </div>
+                <span class="text-gray-300 font-medium">{{ service.service_name }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+    <div class="glass rounded-3xl p-8 shadow-xl">
+      <div class="flex justify-between items-center mb-10">
+          <h3 class="text-2xl font-bold text-white">Guest Reviews</h3>
+          <div class="flex items-center gap-3 bg-white/5 px-4 py-2 rounded-2xl border border-white/10">
+              <span class="text-3xl font-black text-indigo-400">{{ studio.avg_rating or '0.0' }}</span>
+              <div class="text-xs text-gray-500">
+                  <div class="flex text-yellow-500 mb-0.5">★★★★★</div>
+                  {{ studio.review_count or '0' }} Reviews
+              </div>
+          </div>
+      </div>
+
+      {% if session.get('user_id') %}
+      <form action="/add-review/{{ studio.id }}" method="POST" class="bg-indigo-600/5 p-6 rounded-3xl mb-12 border border-indigo-500/20">
+          <h4 class="text-lg font-semibold mb-4 text-white">Add Your Experience</h4>
+          <div class="space-y-4">
+              <div class="flex items-center gap-4">
+                  <label class="text-sm text-gray-400">Your Rating:</label>
+                  <select name="rating" class="bg-gray-900 border border-white/10 rounded-xl px-4 py-2 text-yellow-400 font-bold focus:ring-2 focus:ring-indigo-500 outline-none appearance-none cursor-pointer">
+                      <option value="5">★★★★★ (5/5)</option>
+                      <option value="4">★★★★☆ (4/5)</option>
+                      <option value="3">★★★☆☆ (3/5)</option>
+                      <option value="2">★★☆☆☆ (2/5)</option>
+                      <option value="1">★☆☆☆☆ (1/5)</option>
+                  </select>
+              </div>
+              <textarea name="comment" required placeholder="What did you love about their work?..." 
+                        class="w-full bg-gray-900 border border-white/10 rounded-2xl p-4 text-sm focus:border-indigo-500 outline-none h-32 transition"></textarea>
+              <button type="submit" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-500 text-white px-10 py-3 rounded-full font-bold transition-all shadow-lg shadow-indigo-600/20">
+                  Post My Review
+              </button>
+          </div>
+      </form>
+      {% else %}
+      <div class="bg-white/5 p-8 rounded-3xl text-center mb-12 border border-dashed border-white/10">
+          <p class="text-gray-400">Want to share your experience? <a href="/login" class="text-indigo-400 hover:underline font-bold ml-1">Login to Rate</a></p>
+      </div>
+      {% endif %}
+
+      <div class="space-y-8">
+          {% for review in reviews %}
+          <div class="bg-white/[0.02] p-6 rounded-2xl border border-white/5">
+              <div class="flex justify-between items-start mb-4">
+                  <div class="flex items-center gap-3">
+                      <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center font-bold text-white">
+                          {{ review.reviewer_name[0]|upper }}
+                      </div>
+                      <div>
+                          <p class="font-bold text-gray-200">{{ review.reviewer_name }}</p>
+                          <div class="text-yellow-500 text-xs flex gap-0.5">
+                              {% for i in range(review.rating) %}★{% endfor %}
+                          </div>
+                      </div>
+                  </div>
+                  <span class="text-[10px] text-gray-500 font-medium bg-white/5 px-2 py-1 rounded">{{ review.created_at.strftime('%d %b %Y') }}</span>
+              </div>
+              <p class="text-gray-400 text-sm leading-loose">{{ review.comment }}</p>
+          </div>
+          {% else %}
+          <div class="text-center py-10 opacity-50">
+              <svg class="w-12 h-12 mx-auto mb-3 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+              <p class="italic text-sm text-gray-400">No reviews yet. Be the first to share your experience!</p>
+          </div>
+          {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <aside>
+    <div id="enquiry" class="glass rounded-3xl p-6 md:p-8 sticky top-28 shadow-2xl border-indigo-500/20">
+      <div class="w-12 h-12 bg-indigo-500/20 rounded-2xl flex items-center justify-center mb-6 text-indigo-400">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+      </div>
+      <h3 class="text-xl font-bold text-white mb-2 leading-tight">
+        Instant Quotation
+      </h3>
+      <p class="text-gray-400 text-sm mb-6">Send your requirements and get the best prices from this studio.</p>
+
+      <form method="POST" action="/enquiry/{{ studio.id }}" class="space-y-4">
+        <div class="space-y-1">
+            <input type="text" name="name" placeholder="Full Name" required
+              class="w-full bg-gray-900 border border-white/10 px-4 py-3 rounded-xl text-white text-sm focus:border-indigo-500 outline-none transition">
+        </div>
+        <div class="space-y-1">
+            <input type="text" name="mobile" placeholder="Mobile Number" required
+              class="w-full bg-gray-900 border border-white/10 px-4 py-3 rounded-xl text-white text-sm focus:border-indigo-500 outline-none transition">
+        </div>
+        <div class="space-y-1">
+            <textarea name="message" placeholder="I'm interested in..."
+              class="w-full bg-gray-900 border border-white/10 px-4 py-3 rounded-xl text-white text-sm focus:border-indigo-500 outline-none h-24 transition"></textarea>
+        </div>
+
+        <button class="w-full bg-indigo-600 hover:bg-indigo-500 text-white py-4 rounded-xl font-bold transition-all shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2 group">
+          Send Enquiry 
+          <svg class="w-4 h-4 group-hover:translate-x-1 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+        </button>
+      </form>
+      
+      <p class="text-[10px] text-gray-500 mt-6 text-center">By clicking, you agree to share your info with this studio.</p>
+    </div>
+  </aside>
+</main>
+
+<script>
+  // --- MOBILE MENU TOGGLE ---
+const menuBtn = document.getElementById('mobile-menu-btn');
+const mobileMenu = document.getElementById('mobile-menu');
+const menuIcon = document.getElementById('menu-icon');
+
+menuBtn.addEventListener('click', () => {
+    mobileMenu.classList.toggle('hidden');
+    
+    // Optional: Change icon to an 'X' when menu is open
+    const isOpen = !mobileMenu.classList.contains('hidden');
+    if (isOpen) {
+        menuIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>';
+    } else {
+        menuIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>';
+    }
+});
+function openTab(evt, tabId) {
+    const contents = document.getElementsByClassName("tab-content");
+    for (let i = 0; i < contents.length; i++) {
+        contents[i].classList.add("hidden");
+    }
+
+    const links = document.getElementsByClassName("tab-link");
+    for (let i = 0; i < links.length; i++) {
+        links[i].classList.remove("text-indigo-400", "border-b-2", "border-indigo-500");
+        links[i].classList.add("text-gray-500");
+    }
+
+    document.getElementById(tabId).classList.remove("hidden");
+    evt.currentTarget.classList.add("text-indigo-400", "border-b-2", "border-indigo-500");
+    evt.currentTarget.classList.remove("text-gray-500");
+}
+
+// --- LIGHTBOX LOGIC ---
+
+// Convert Jinja2 photos list to a Javascript array
+const allPhotos = [
+    {% for photo in photos %}
+        "/{{ photo.file_path }}"{% if not loop.last %},{% endif %}
+    {% endfor %}
+];
+
+let currentIndex = 0;
+
+function openLightbox(index) {
+    currentIndex = index;
+    updateLightboxImage();
+    document.getElementById('lightbox').classList.remove('hidden');
+    document.body.style.overflow = 'hidden'; // Prevent scrolling while lightbox is open
+}
+
+function closeLightbox() {
+    document.getElementById('lightbox').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+}
+
+function updateLightboxImage() {
+    const imgElement = document.getElementById('lightbox-img');
+    const indexDisplay = document.getElementById('current-index');
+    
+    // Add a small fade effect
+    imgElement.style.opacity = '0';
+    
+    setTimeout(() => {
+        imgElement.src = allPhotos[currentIndex];
+        indexDisplay.innerText = currentIndex + 1;
+        imgElement.style.opacity = '1';
+    }, 150);
+}
+
+function nextImage() {
+    currentIndex = (currentIndex + 1) % allPhotos.length;
+    updateLightboxImage();
+}
+
+function prevImage() {
+    currentIndex = (currentIndex - 1 + allPhotos.length) % allPhotos.length;
+    updateLightboxImage();
+}
+
+// Close lightbox on 'Esc' key and navigate with arrows
+document.addEventListener('keydown', (e) => {
+    const lightbox = document.getElementById('lightbox');
+    if (!lightbox.classList.contains('hidden')) {
+        if (e.key === "Escape") closeLightbox();
+        if (e.key === "ArrowRight") nextImage();
+        if (e.key === "ArrowLeft") prevImage();
+    }
+});
+
+// --- EXISTING TAB LOGIC ---
+function openTab(evt, tabId) {
+    const contents = document.getElementsByClassName("tab-content");
+    for (let i = 0; i < contents.length; i++) {
+        contents[i].classList.add("hidden");
+    }
+
+    const links = document.getElementsByClassName("tab-link");
+    for (let i = 0; i < links.length; i++) {
+        links[i].classList.remove("text-indigo-400", "border-b-2", "border-indigo-500");
+        links[i].classList.add("text-gray-500");
+    }
+
+    document.getElementById(tabId).classList.remove("hidden");
+    evt.currentTarget.classList.add("text-indigo-400", "border-b-2", "border-indigo-500");
+    evt.currentTarget.classList.remove("text-gray-500");
+}
+</script>
+
+</body>
+</html>

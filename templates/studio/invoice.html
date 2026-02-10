@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice #{{ booking.id }} - {{ studio.studio_name }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        
+        @media print {
+            .no-print { display: none !important; }
+            body { background-color: white !important; padding: 0 !important; }
+            .invoice-card { box-shadow: none !important; border: none !important; padding: 0 !important; }
+        }
+
+        .watermark {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            font-size: 60px;
+            font-weight: 800;
+            color: rgba(0, 0, 0, 0.03);
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 0;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 p-4 md:p-12 text-slate-900">
+
+    <div class="watermark">
+        {{ studio.studio_name }} • Studio Marketplace
+    </div>
+
+    <div class="max-w-4xl mx-auto relative z-10">
+        
+        <div class="flex justify-between items-center mb-8 no-print">
+            <a href="/studio/bookings" class="flex items-center gap-2 text-slate-500 hover:text-indigo-600 font-semibold transition-colors">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7 7-7m8 14l-7-7 7-7"></path></svg>
+                Back to Bookings
+            </a>
+            <button onclick="window.print()" class="bg-indigo-600 text-white px-6 py-2.5 rounded-xl font-bold shadow-lg shadow-indigo-200 hover:bg-indigo-700 transition-all flex items-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                Print Invoice
+            </button>
+        </div>
+
+        <div class="bg-white border border-slate-200 rounded-3xl shadow-xl shadow-slate-200/50 overflow-hidden invoice-card">
+            
+            <div class="h-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500"></div>
+
+            <div class="p-8 md:p-12">
+                <div class="flex flex-col md:flex-row justify-between gap-8 mb-12">
+                    <div>
+                        <div class="inline-block bg-indigo-600 text-white px-4 py-1 rounded-lg text-xs font-black uppercase tracking-widest mb-4">Invoice</div>
+                        <h1 class="text-4xl font-black text-slate-900 tracking-tight">#{{ booking.id }}</h1>
+                        <div class="mt-4 space-y-1">
+                            <p class="text-sm text-slate-500 font-medium">Issue Date: <span class="text-slate-900">{{ booking.booking_date }}</span></p>
+                            <p class="text-sm text-slate-500 font-medium">Due Date: <span class="text-slate-900">On Delivery</span></p>
+                        </div>
+                    </div>
+
+                    <div class="text-left md:text-right">
+                        <h2 class="text-xl font-bold text-slate-900">{{ studio.studio_name }}</h2>
+                        <p class="text-sm text-slate-500 mt-2">{{ studio.city }}</p>
+                        <p class="text-sm text-slate-500">{{ studio.studio_phone }}</p>
+                        <p class="text-sm text-slate-500">{{ studio.studio_email }}</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12 mb-12 py-8 border-y border-slate-100">
+                    <div>
+                        <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Billed To</h3>
+                        <div class="space-y-1">
+                            <p class="text-lg font-bold text-slate-900">{{ booking.client_name }}</p>
+                            <p class="text-slate-500">{{ booking.client_phone }}</p>
+                            <p class="text-slate-500">{{ booking.client_email }}</p>
+                        </div>
+                    </div>
+                    <div class="md:text-right">
+                        <h3 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Payment Status</h3>
+                        {% if balance <= 0 %}
+                            <span class="inline-flex items-center px-4 py-1 rounded-full text-sm font-bold bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/20">PAID IN FULL</span>
+                        {% else %}
+                            <span class="inline-flex items-center px-4 py-1 rounded-full text-sm font-bold bg-amber-50 text-amber-700 ring-1 ring-amber-600/20">PARTIAL PAYMENT</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="mb-12 overflow-hidden">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="text-xs font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">
+                                <th class="pb-4">Description</th>
+                                <th class="pb-4 text-right">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-slate-700">
+                            {% set total = 0 %}
+                            {% for s in services %}
+                                {% set total = total + s.price %}
+                                <tr class="border-b border-slate-50">
+                                    <td class="py-6 font-semibold">{{ s.service_name }}</td>
+                                    <td class="py-6 text-right font-bold text-slate-900">₹{{ "%.2f"|format(s.price) }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="flex justify-end">
+                    <div class="w-full md:w-80 space-y-3">
+                        <div class="flex justify-between text-slate-500">
+                            <span class="font-medium">Subtotal</span>
+                            <span class="font-bold">₹{{ "%.2f"|format(total) }}</span>
+                        </div>
+                        <div class="flex justify-between text-slate-500">
+                            <span class="font-medium">Advance Paid</span>
+                            <span class="font-bold text-emerald-600">- ₹{{ "%.2f"|format(booking.advance_paid or 0) }}</span>
+                        </div>
+                        <div class="pt-4 border-t border-slate-200 flex justify-between items-center">
+                            <span class="text-lg font-black text-slate-900 uppercase tracking-tighter">Amount Due</span>
+                            <span class="text-2xl font-black text-indigo-600">₹{{ "%.2f"|format(balance) }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-20 pt-12 border-t border-slate-100 text-center">
+                    <p class="text-slate-400 text-sm font-medium">Thank you for choosing <span class="text-slate-900 font-bold">{{ studio.studio_name }}</span>.</p>
+                    <p class="text-[10px] text-slate-300 uppercase tracking-widest mt-2 font-bold">This is a system generated invoice.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

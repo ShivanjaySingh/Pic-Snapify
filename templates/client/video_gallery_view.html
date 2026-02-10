@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Gallery — Pic Snapify</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0f172a; }
+        
+        .video-card { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .video-card:hover { transform: translateY(-4px); }
+        
+        .heart {
+            width: 28px; height: 28px;
+            stroke: #fff; stroke-width: 2;
+            fill: rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+        }
+        .heart.liked {
+            fill: #ef4444; stroke: #ef4444;
+            filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.6));
+        }
+
+        .glass-nav {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .lightbox-glass {
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+        }
+
+        /* Play icon overlay */
+        .play-overlay {
+            background: rgba(79, 70, 229, 0.6);
+            backdrop-filter: blur(4px);
+        }
+    </style>
+</head>
+
+<body class="text-slate-200 min-h-screen">
+
+<nav class="glass-nav sticky top-0 z-40 px-6 py-4">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+        <div class="flex items-center gap-4">
+            <a href="/client/galleries" class="p-2 hover:bg-slate-800 rounded-full transition text-slate-400">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+            </a>
+            <h2 class="text-xl font-black tracking-tight">Video <span class="text-indigo-500">Collection</span></h2>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-center gap-2">
+            <button id="toggleLiked" class="px-5 py-2.5 bg-slate-800 border border-slate-700 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-slate-700 transition-all">
+                Show Liked Only
+            </button>
+            <a href="/client/gallery/{{ gallery_id }}/videos/download-liked" class="px-5 py-2.5 bg-rose-600 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-rose-500 shadow-lg shadow-rose-900/20 transition-all">
+                Download Liked
+            </a>
+            <a href="/client/gallery/{{ gallery_id }}/videos/download-all" class="px-5 py-2.5 bg-indigo-600 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-indigo-500 shadow-lg shadow-indigo-900/20 transition-all">
+                Download All
+            </a>
+            <a href="/client/gallery/logout" class="px-5 py-2.5 bg-slate-100 text-slate-900 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-white transition-all">
+                Exit
+            </a>
+        </div>
+    </div>
+</nav>
+
+<main class="max-w-7xl mx-auto p-6 lg:p-10">
+    <div id="galleryGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        {% for video in videos %}
+        <div class="video-card relative group rounded-[2.5rem] overflow-hidden bg-slate-800 border border-slate-700/50 shadow-2xl"
+             data-liked="{{ 1 if video.is_selected else 0 }}"
+             onclick="openLightbox({{ loop.index0 }})">
+            
+            <div class="aspect-video relative overflow-hidden">
+                <video src="/{{ video.video_path }}"
+                       class="w-full h-full object-cover pointer-events-none"
+                       muted loading="lazy">
+                </video>
+                
+                <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div class="play-overlay w-16 h-16 rounded-full flex items-center justify-center shadow-2xl">
+                        <svg class="w-8 h-8 text-white translate-x-0.5" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.333-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/></svg>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-5 flex justify-between items-center bg-slate-800/80 backdrop-blur-md">
+                <button data-video-id="{{ video.id }}"
+                        class="like-btn p-2 rounded-full hover:bg-white/10 transition-colors z-20"
+                        onclick="event.stopPropagation()">
+                    <svg class="heart {% if video.is_selected %}liked{% endif %}" viewBox="0 0 24 24">
+                        <path d="M12 21s-7-4.35-9.5-8.28C.4 9.2 2.5 5.5 6.4 5.5c2.1 0 3.6 1.2 4.6 2.7 1-1.5 2.5-2.7 4.6-2.7 3.9 0 6 3.7 3.9 7.22C19 16.65 12 21 12 21z"/>
+                    </svg>
+                </button>
+
+                <div class="flex items-center gap-3">
+                    <span class="text-[10px] font-black uppercase tracking-widest text-slate-500">Video #{{ video.id }}</span>
+                    <a href="/{{ video.video_path }}" download
+                       onclick="event.stopPropagation()"
+                       class="bg-white/10 p-2.5 rounded-xl hover:bg-white hover:text-slate-900 transition-all z-20">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-span-full py-32 text-center bg-slate-800/50 rounded-[3rem] border-2 border-dashed border-slate-700">
+            <p class="text-slate-500 font-black uppercase tracking-widest">No videos found in this gallery</p>
+        </div>
+        {% endfor %}
+    </div>
+</main>
+
+<div id="lightbox" class="fixed inset-0 lightbox-glass hidden flex items-center justify-center z-[100]">
+    <button onclick="closeLightbox()" class="absolute top-8 right-8 text-white/50 hover:text-white transition p-2 z-[110]">
+        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+    </button>
+
+    <button onclick="prevVideo()" class="absolute left-8 p-4 text-white/30 hover:text-white transition-all hover:scale-125 z-[110]">
+        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+    </button>
+
+    <div class="flex flex-col items-center max-w-[90vw] relative">
+        <video id="lightbox-video" controls autoplay class="max-h-[75vh] w-auto rounded-3xl shadow-2xl border border-slate-800"></video>
+        
+        <div class="mt-8 flex items-center gap-6 bg-slate-900/80 backdrop-blur-xl px-8 py-4 rounded-3xl border border-slate-700 shadow-2xl">
+            <button id="lightbox-like" class="group flex items-center gap-3">
+                <svg id="lightbox-heart" class="heart w-8 h-8" viewBox="0 0 24 24">
+                    <path d="M12 21s-7-4.35-9.5-8.28C.4 9.2 2.5 5.5 6.4 5.5c2.1 0 3.6 1.2 4.6 2.7 1-1.5 2.5-2.7 4.6-2.7 3.9 0 6 3.7 3.9 7.22C19 16.65 12 21 12 21z"/>
+                </svg>
+                <span class="text-xs font-black uppercase tracking-[0.2em]">Add to Favorites</span>
+            </button>
+        </div>
+    </div>
+
+    <button onclick="nextVideo()" class="absolute right-8 p-4 text-white/30 hover:text-white transition-all hover:scale-125 z-[110]">
+        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+    </button>
+</div>
+
+<script>
+/* [All your existing JavaScript logic remains identical here] */
+let showLikedOnly = false;
+let currentIndex = 0;
+let activeVideos = [];
+
+function buildActiveVideos() {
+    const cards = document.querySelectorAll('.video-card');
+    activeVideos = [];
+    cards.forEach((card, index) => {
+        if (!showLikedOnly || card.dataset.liked === "1") {
+            activeVideos.push({
+                index, card,
+                video: card.querySelector('video'),
+                id: card.querySelector('.like-btn').dataset.videoId
+            });
+        }
+    });
+}
+
+document.querySelectorAll('.like-btn').forEach(btn => {
+    btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        toggleLike(this.dataset.videoId, this.closest('.video-card'));
+    });
+});
+
+function toggleLike(videoId, card, fromLightbox = false) {
+    fetch(`/client/gallery/{{ gallery_id }}/video/select/${videoId}`, {
+        method: 'POST',
+        credentials: 'same-origin'
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (!data.success) return;
+        card.dataset.liked = data.selected ? "1" : "0";
+        card.querySelector('.heart').classList.toggle('liked', data.selected);
+        const lbHeart = document.getElementById('lightbox-heart');
+        lbHeart.classList.toggle('liked', data.selected);
+        if (showLikedOnly && !data.selected) {
+            closeLightbox();
+            card.classList.add('hidden');
+        }
+    });
+}
+
+document.getElementById('toggleLiked').addEventListener('click', function() {
+    showLikedOnly = !showLikedOnly;
+    document.querySelectorAll('.video-card').forEach(card => {
+        if (showLikedOnly && card.dataset.liked !== "1") {
+            card.classList.add('hidden');
+        } else {
+            card.classList.remove('hidden');
+        }
+    });
+    buildActiveVideos();
+    this.innerText = showLikedOnly ? 'Show All Videos' : 'Show Liked Only';
+});
+
+function openLightbox(index) {
+    buildActiveVideos();
+    currentIndex = activeVideos.findIndex(v => v.index === index);
+    if(currentIndex === -1) currentIndex = 0;
+    showVideo();
+}
+
+function showVideo() {
+    const data = activeVideos[currentIndex];
+    const video = document.getElementById('lightbox-video');
+    const heart = document.getElementById('lightbox-heart');
+    if(!data) return;
+    video.src = data.video.src;
+    video.play();
+    heart.classList.toggle('liked', data.card.dataset.liked === "1");
+    document.getElementById('lightbox').classList.remove('hidden');
+    document.getElementById('lightbox-like').onclick = () => toggleLike(data.id, data.card, true);
+}
+
+function nextVideo() {
+    if (!activeVideos.length) return;
+    currentIndex = (currentIndex + 1) % activeVideos.length;
+    showVideo();
+}
+
+function prevVideo() {
+    if (!activeVideos.length) return;
+    currentIndex = (currentIndex - 1 + activeVideos.length) % activeVideos.length;
+    showVideo();
+}
+
+function closeLightbox() {
+    const video = document.getElementById('lightbox-video');
+    video.pause();
+    video.src = "";
+    document.getElementById('lightbox').classList.add('hidden');
+}
+
+// Keyboard support
+document.addEventListener('keydown', (e) => {
+    if (document.getElementById('lightbox').classList.contains('hidden')) return;
+    if (e.key === 'ArrowRight') nextVideo();
+    if (e.key === 'ArrowLeft') prevVideo();
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === ' ') { // Toggle play/pause on Space
+        const v = document.getElementById('lightbox-video');
+        v.paused ? v.play() : v.pause();
+        e.preventDefault();
+    }
+});
+</script>
+
+</body>
+</html>

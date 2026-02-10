@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en" x-data="{ sidebarOpen: window.innerWidth > 768 }">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clients - Pic Snapify</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.15.0/dist/cdn.min.js" defer></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        [x-cloak] { display: none !important; }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+    </style>
+</head>
+<body class="bg-[#f8fafc] text-slate-900">
+
+<div x-show="sidebarOpen && window.innerWidth < 768" 
+     class="fixed inset-0 bg-slate-900/50 z-[45]" 
+     @click="sidebarOpen = false" x-cloak></div>
+
+<aside 
+    :class="sidebarOpen ? 'w-72 translate-x-0' : 'w-20 -translate-x-full md:translate-x-0'" 
+    class="fixed inset-y-0 left-0 z-[50] bg-slate-900 text-slate-300 transition-all duration-300 ease-in-out flex flex-col shadow-2xl overflow-hidden border-r border-slate-800"
+    x-cloak>
+    
+    <div class="flex items-center justify-between p-4 h-20 border-b border-slate-800/50 shrink-0">
+        <div class="flex items-center gap-3 overflow-hidden">
+            <div class="min-w-[40px] h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold shadow-lg shadow-indigo-500/20">PS</div>
+            <h1 x-show="sidebarOpen" x-transition class="text-xl font-bold text-white tracking-tight whitespace-nowrap">Pic Snapify</h1>
+        </div>
+        <button @click="sidebarOpen = !sidebarOpen" class="p-2 hover:bg-slate-800 rounded-lg transition-colors text-slate-400 hover:text-white">
+            <svg class="w-6 h-6 transition-transform duration-300" :class="!sidebarOpen && 'rotate-180'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path>
+            </svg>
+        </button>
+    </div>
+
+    <nav class="flex-1 px-3 py-6 space-y-2 overflow-y-auto overflow-x-hidden custom-scrollbar">
+        <div class="text-[10px] font-bold text-slate-500 uppercase px-4 mb-4 tracking-widest whitespace-nowrap" x-show="sidebarOpen">Main Menu</div>
+        
+        <template x-for="link in [
+            { name: 'Dashboard', icon: '🏠', url: '/studio/dashboard' },
+            { name: 'Profile', icon: '👤', url: '/studio/profile' },
+            { name: 'Services', icon: '📸', url: '/studio/services' },
+            { name: 'Bookings', icon: '📅', url: '/studio/bookings' },
+            { name: 'Clients', icon: '👥', url: '/studio/clients' },
+            { name: 'Gallery', icon: '🖼️', url: '/studio/gallery-management' },
+            { name: 'Analytics', icon: '📊', url: '/studio/analytics' },
+            { name: 'Enquiries', icon: '📩', url: '/studio/contact-requests' }
+        ]">
+            <a :href="link.url" 
+               class="flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 group relative"
+               :class="window.location.pathname === link.url ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/20' : 'hover:bg-slate-800 hover:text-white'">
+                <span class="text-xl min-w-[24px] flex justify-center" x-text="link.icon"></span>
+                <span x-show="sidebarOpen" class="font-medium whitespace-nowrap" x-text="link.name"></span>
+                <div x-show="!sidebarOpen" class="absolute left-full ml-4 px-3 py-2 bg-slate-800 text-white text-xs rounded-md opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
+                    <span x-text="link.name"></span>
+                </div>
+            </a>
+        </template>
+
+        <div class="border-t border-slate-800 my-4 pt-4 space-y-2">
+            <a href="/browse" class="flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-slate-800 hover:text-white transition group relative">
+                <span class="text-xl min-w-[24px] flex justify-center">🌐</span>
+                <span x-show="sidebarOpen" class="font-medium">Browse Studios</span>
+            </a>
+            <a href="/studio/logout" class="flex items-center gap-4 px-4 py-3 rounded-xl text-red-400 hover:bg-red-500/10 transition group relative">
+                <span class="text-xl min-w-[24px] flex justify-center">🚪</span>
+                <span x-show="sidebarOpen" class="font-medium">Logout</span>
+            </a>
+        </div>
+    </nav>
+</aside>
+
+<main :class="sidebarOpen ? 'md:ml-72' : 'md:ml-20'" class="transition-all duration-300 min-h-screen">
+
+    <header class="bg-white/80 backdrop-blur-md sticky top-0 z-40 border-b border-slate-200 px-6 py-4">
+        <div class="flex justify-between items-center max-w-6xl mx-auto">
+            <div class="flex items-center gap-4">
+                <button @click="sidebarOpen = !sidebarOpen" class="md:hidden p-2 bg-slate-100 rounded-lg">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                </button>
+                <h1 class="text-2xl font-bold text-slate-900 tracking-tight">Clients</h1>
+            </div>
+            
+            {% for photo in portfolio_photos %}
+                <img src="/{{ photo.file_path }}" class="w-12 h-12 rounded-full object-cover ring-2 ring-indigo-500 ring-offset-2">
+            {% endfor %}
+        </div>
+    </header>
+
+    <div class="p-6 max-w-7xl mx-auto">
+        <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left whitespace-nowrap">
+                    <thead class="bg-slate-50 text-slate-500 text-xs font-bold uppercase tracking-wider">
+                        <tr>
+                            <th class="px-6 py-4">Client</th>
+                            <th class="px-6 py-4">Email</th>
+                            <th class="px-6 py-4">Added</th>
+                            <th class="px-6 py-4 text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        {% for c in clients %}
+                        <tr class="hover:bg-slate-50/50 transition-colors">
+                            <td class="px-6 py-4 font-semibold text-slate-900">{{ c.name }}</td>
+                            <td class="px-6 py-4 text-sm text-slate-600">{{ c.email }}</td>
+                            <td class="px-6 py-4 text-sm text-slate-500">{{ c.created_at }}</td>
+                            <td class="px-6 py-4 text-right">
+                                <!-- <a href="/studio/client/{{ c.id }}/galleries"  -->
+                                 <a href="/studio/gallery-management" 
+                                   class="inline-flex items-center px-4 py-2 bg-indigo-50 text-indigo-600 text-sm font-bold rounded-lg hover:bg-indigo-600 hover:text-white transition-all">
+                                    View Galleries
+                                </a>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="4" class="px-6 py-12 text-center text-slate-400 italic bg-slate-50/50">
+                                No clients found yet.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+
+</body>
+</html>
