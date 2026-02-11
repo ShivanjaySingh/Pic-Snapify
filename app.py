@@ -20,20 +20,16 @@ import cleanup_expired_gallery
 import instamojo_service # This is the module i created for Instamojo payment integration
 
 
-
-
-
-
 app =Flask(__name__)
 
 # Secret Key is very important for session management and flash messages
 app.secret_key = "tyu653azedr3wyhv!554"
 
 # MySQL configurations
-app.config['MYSQL_HOST'] = 'localhost'          # picsnapify123.mysql.database.azure.com
-app.config['MYSQL_USER'] = 'root'               # admin_123
-app.config['MYSQL_PASSWORD'] = 'rootpassword'   # admin@2003
-app.config['MYSQL_DB']  = 'pick_my_photo'       # pic_snapify_db
+app.config['MYSQL_HOST'] = 'database-1.c9qaeokiumh0.eu-north-1.rds.amazonaws.com'         
+app.config['MYSQL_USER'] = 'admin'               
+app.config['MYSQL_PASSWORD'] = 'AmazonDatabse2003'   
+app.config['MYSQL_DB']  = 'PicSnapifyDB'       
 
 mysql = MySQL(app)
 
@@ -2981,3 +2977,4 @@ def client_download_liked_videos(gallery_id):
 
 if __name__ == '__main__':
     app.run(debug=True)
+
