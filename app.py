@@ -26,7 +26,7 @@ app =Flask(__name__)
 app.secret_key = "tyu653azedr3wyhv!554"
 
 # MySQL configurations
-app.config['MYSQL_HOST'] = 'database-1.c9qaeokiumh0.eu-north-1.rds.amazonaws.com'         
+app.config['MYSQL_HOST'] = 'database-1.c9qaeokiumh0.eu-north-1.rds.amazonaws.com'
 app.config['MYSQL_USER'] = 'admin'               
 app.config['MYSQL_PASSWORD'] = 'AmazonDatabase2003'   
 app.config['MYSQL_DB']  = 'PicSnapifyDB'       
@@ -2977,5 +2977,6 @@ def client_download_liked_videos(gallery_id):
 
 if __name__ == '__main__':
     app.run(debug=True)
+
 
 
