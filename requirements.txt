@@ -1,2 +1,6 @@
-flask
-gunicorn
+Flask
+Flask-MySQLdb
+Werkzeug
+instamojo-wrapper
+# These are built-in libraries (os, uuid, io, zipfile, datetime, etc.) 
+# and do not need to be listed here.
