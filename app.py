@@ -1292,16 +1292,16 @@ def subscription_required(f):
     return wrapper
 
 # Checks if the subscription is finished
-@app.before_request
-def auto_expire_subscriptions():
-    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-    cursor.execute("""
-        UPDATE studio_subscriptions
-        SET status='expired'
-        WHERE status='active' AND end_date < CURDATE()
-    """)
-    mysql.connection.commit()
-    cursor.close()
+# @app.before_request
+# def auto_expire_subscriptions():
+#     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+#     cursor.execute("""
+#         UPDATE studio_subscriptions
+#         SET status='expired'
+#         WHERE status='active' AND end_date < CURDATE()
+#     """)
+#     mysql.connection.commit()
+#     cursor.close()
 
 
 # Studio Pricing Page (Route + Logic)
@@ -2977,6 +2977,7 @@ def client_download_liked_videos(gallery_id):
 
 if __name__ == '__main__':
     app.run(debug=True)
+
 
 
 
