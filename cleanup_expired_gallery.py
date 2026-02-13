@@ -9,10 +9,10 @@ from datetime import datetime
 app = Flask(__name__)
 
 # CONFIGURATION (Matches your app.py)
-app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'rootpassword'
-app.config['MYSQL_DB']  = 'pick_my_photo'
+app.config['MYSQL_HOST'] = 'database-1.c9qaeokiumh0.eu-north-1.rds.amazonaws.com'       
+app.config['MYSQL_USER'] = 'admin'               
+app.config['MYSQL_PASSWORD'] = 'AmazonDatabase2003'  
+app.config['MYSQL_DB']  = 'PicSnapifyDB''pick_my_photo'
 
 mysql = MySQL(app)
 
@@ -76,4 +76,5 @@ def auto_delete_expired_galleries():
         print(f"[{datetime.now()}] Cleanup complete.")
 
 if __name__ == "__main__":
+
     auto_delete_expired_galleries()
