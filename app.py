@@ -168,7 +168,7 @@ def login():
                 return redirect('/admin/dashboard')
             elif user['role'] == 'studio':
                 return redirect('/studio/dashboard')
-            elif user['role'] == 'studio':
+            elif user['role'] == 'client':
                 return redirect('/browse')
 
         flash('Invalid email or password', 'danger')
@@ -2977,6 +2977,7 @@ def client_download_liked_videos(gallery_id):
 
 if __name__ == '__main__':
     app.run(debug=True)
+
 
 
 
