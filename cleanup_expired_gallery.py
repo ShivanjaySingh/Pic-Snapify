@@ -11,7 +11,7 @@ app = Flask(__name__)
 # CONFIGURATION (Matches your app.py)
 app.config['MYSQL_HOST'] = 'database-1.c9qaeokiumh0.eu-north-1.rds.amazonaws.com'       
 app.config['MYSQL_USER'] = 'admin'               
-app.config['MYSQL_PASSWORD'] = 'AmazonDatabase2003'  
+app.config['MYSQL_PASSWORD'] = 'P8RU4ZCxYaPZGewd3WtB'  
 app.config['MYSQL_DB']  = 'PicSnapifyDB'
 
 mysql = MySQL(app)
