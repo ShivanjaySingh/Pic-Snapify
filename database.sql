@@ -40,7 +40,7 @@ CREATE TABLE studios (
 
 CREATE TABLE studio_photos (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    studio_id BIGINT UNSIGNED NOT NULL,
+    studio_id BIGINT NOT NULL,
     file_path VARCHAR(300) NOT NULL,
     title VARCHAR(150),
     category VARCHAR(100),
