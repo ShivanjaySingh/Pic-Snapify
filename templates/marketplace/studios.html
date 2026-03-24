@@ -24,7 +24,8 @@
       <a href="/browse" class="text-gray-600 hover:text-indigo-600">Home</a>
       <a href="#" class="text-gray-600 hover:text-indigo-600">Advertise</a>
       {% if session.get('user_id') %}
-        <a href="/client/dashboard" class="text-gray-600 hover:text-indigo-600">Dashboard</a>
+        <a href="/client/dashboard" class="text-gray-600 hover:text-indigo-600">Client Dashboard</a>
+              <a href="/client/dashboard" class="block text-gray-600 font-semibold">Studio Dashboard</a>
         <div class="flex items-center gap-4 ml-4 pl-4 border-l border-gray-200">
           <span class="text-gray-500 font-normal italic">Hi, {{ session.get('user_name', 'User') }}</span>
           <a href="/logout" class="bg-red-50 text-red-600 px-4 py-2 rounded-lg hover:bg-red-100 transition">Logout</a>
