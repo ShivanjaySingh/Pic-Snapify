@@ -1350,47 +1350,47 @@ def studio_pricing():
 @app.route('/studio/subscribe/<int:plan_id>')
 @login_required
 def studio_subscribe(plan_id):
+    if session.get('role') != 'studio':
+        return redirect('/login')
+
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     studio_id = get_studio_id(cursor)
 
-    cursor.execute("SELECT * FROM subscription_plans WHERE id=%s", (plan_id,))
+    # 1. Fetch the selected plan
+    cursor.execute("SELECT id, duration_days, name FROM subscription_plans WHERE id=%s", (plan_id,))
     plan = cursor.fetchone()
 
     if not plan:
+        cursor.close()
         return abort(404)
 
     try:
-        # Create Instamojo Payment Request
-        # Note: Instamojo needs amount as a string with 2 decimals
-        response = instamojo_service.api.payment_request_create(
-            amount="{:.2f}".format(plan['price']),
-            purpose=f"StudioPro: {plan['name']}",
-            buyer_name=session.get('user_name', 'Studio Owner'),
-            email=session.get('email', 'studio@example.com'),
-            phone=session.get('phone', '9999999999'),
-            allow_repeated_payments=False,
-            redirect_url=url_for('payment_success', _external=True) # Fallback
-        )
+        # 2. Calculate dates for the subscription
+        start_date = datetime.now().date()
+        end_date = start_date + timedelta(days=plan['duration_days'])
 
-        payment_url = response['payment_request']['longurl']
-        payment_request_id = response['payment_request']['id']
-
-        # Save pending payment
+        # 3. Deactivate any previous plans (set status to expired)
         cursor.execute("""
-            INSERT INTO payments (studio_id, plan_id, instamojo_id, amount, status)
-            VALUES (%s, %s, %s, %s, 'pending')
-        """, (studio_id, plan_id, payment_request_id, plan['price']))
-        mysql.connection.commit()
+            UPDATE studio_subscriptions 
+            SET status='expired' 
+            WHERE studio_id=%s AND status='active'
+        """, (studio_id,))
 
-        return render_template(
-            "studio/instamojo_checkout.html",
-            plan=plan,
-            payment_url=payment_url # Pass this to JS
-        )
+        # 4. Activate the new plan in the database
+        cursor.execute("""
+            INSERT INTO studio_subscriptions (studio_id, plan_id, start_date, end_date, status)
+            VALUES (%s, %s, %s, %s, 'active')
+        """, (studio_id, plan_id, start_date, end_date))
+
+        mysql.connection.commit()
+        
+        # Redirect to dashboard with a success flag
+        return redirect('/studio/dashboard?subscription=success')
 
     except Exception as e:
-        print(f"Instamojo Error: {e}")
-        return "Gateway Error", 500
+        mysql.connection.rollback()
+        print(f"Error activating plan: {e}")
+        return "Internal Server Error", 500
     finally:
         cursor.close()
 
