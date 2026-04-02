@@ -2453,7 +2453,7 @@ def book_studio(studio_id):
 
         mysql.connection.commit()
         cursor.close()
-        return redirect('/my-bookings')
+        return redirect('/client/my-bookings')
 
     cursor.close()
     return render_template(
