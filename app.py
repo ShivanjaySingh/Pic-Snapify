@@ -957,14 +957,50 @@ def confirm_booking(booking_id):
     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
     studio_id = get_studio_id(cursor)
 
-    cursor.execute("""
-        UPDATE bookings
-        SET status = 'confirmed'
-        WHERE id = %s AND studio_id = %s AND status = 'pending'
-    """, (booking_id, studio_id))
+    try:
+        # 1. Fetch the user_id from the booking before updating
+        # We also check studio_id to ensure the studio owns this booking
+        cursor.execute("""
+            SELECT client_id FROM bookings 
+            WHERE id = %s AND studio_id = %s AND status = 'pending'
+        """, (booking_id, studio_id))
+        booking = cursor.fetchone()
 
-    mysql.connection.commit()
-    cursor.close()
+        if not booking:
+            cursor.close()
+            return "Booking not found or already processed", 404
+
+        user_id = booking['user_id']
+
+        # 2. Update the booking status to confirmed
+        cursor.execute("""
+            UPDATE bookings
+            SET status = 'confirmed'
+            WHERE id = %s AND studio_id = %s
+        """, (booking_id, studio_id))
+
+        # 3. Check if this user is already a client of this studio
+        cursor.execute("""
+            SELECT id FROM clients 
+            WHERE studio_id = %s AND user_id = %s
+        """, (studio_id, user_id))
+        existing_client = cursor.fetchone()
+
+        # 4. If not already a client, create the record
+        if not existing_client:
+            cursor.execute("""
+                INSERT INTO clients (studio_id, user_id)
+                VALUES (%s, %s)
+            """, (studio_id, user_id))
+
+        mysql.connection.commit()
+        
+    except Exception as e:
+        mysql.connection.rollback()
+        print(f"Error confirming booking: {e}")
+        return "Internal Server Error", 500
+    finally:
+        cursor.close()
 
     return redirect('/studio/bookings')
 
