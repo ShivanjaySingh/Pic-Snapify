@@ -1506,6 +1506,7 @@ def create_gallery(subscription):
         plan_name=subscription.get('name')
     )
 
+
 # ----------------------------------Gallery Images -------------------------------------------
 
 # Upload Images to Gallery
