@@ -958,8 +958,7 @@ def confirm_booking(booking_id):
     studio_id = get_studio_id(cursor)
 
     try:
-        # 1. Fetch the user_id from the booking before updating
-        # We also check studio_id to ensure the studio owns this booking
+        # 1. Fetch the client_id (which refers to users.id)
         cursor.execute("""
             SELECT client_id FROM bookings 
             WHERE id = %s AND studio_id = %s AND status = 'pending'
@@ -967,38 +966,39 @@ def confirm_booking(booking_id):
         booking = cursor.fetchone()
 
         if not booking:
-            cursor.close()
             return "Booking not found or already processed", 404
 
-        user_id = booking['user_id']
+        # FIX: Changed 'user_id' to 'client_id' to match your SELECT statement
+        target_user_id = booking['client_id'] 
 
-        # 2. Update the booking status to confirmed
+        # 2. Update the booking status
         cursor.execute("""
             UPDATE bookings
-            SET status = 'confirmed'
+            SET status = 'confirmed', updated_at = CURRENT_TIMESTAMP
             WHERE id = %s AND studio_id = %s
         """, (booking_id, studio_id))
 
-        # 3. Check if this user is already a client of this studio
+        # 3. Check if this user is already in your 'clients' table
         cursor.execute("""
             SELECT id FROM clients 
             WHERE studio_id = %s AND user_id = %s
-        """, (studio_id, user_id))
+        """, (studio_id, target_user_id))
         existing_client = cursor.fetchone()
 
-        # 4. If not already a client, create the record
+        # 4. Create client record if missing
         if not existing_client:
             cursor.execute("""
                 INSERT INTO clients (studio_id, user_id)
                 VALUES (%s, %s)
-            """, (studio_id, user_id))
+            """, (studio_id, target_user_id))
 
         mysql.connection.commit()
         
     except Exception as e:
         mysql.connection.rollback()
-        print(f"Error confirming booking: {e}")
-        return "Internal Server Error", 500
+        # On AWS, check your error logs to see this print output
+        print(f"Error confirming booking: {e}") 
+        return f"Internal Server Error: {str(e)}", 500
     finally:
         cursor.close()
 
