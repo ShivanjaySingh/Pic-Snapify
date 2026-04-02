@@ -1295,16 +1295,16 @@ def subscription_required(f):
     return wrapper
 
 # Checks if the subscription is finished
-# @app.before_request
-# def auto_expire_subscriptions():
-#     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-#     cursor.execute("""
-#         UPDATE studio_subscriptions
-#         SET status='expired'
-#         WHERE status='active' AND end_date < CURDATE()
-#     """)
-#     mysql.connection.commit()
-#     cursor.close()
+@app.before_request
+def auto_expire_subscriptions():
+    cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cursor.execute("""
+        UPDATE studio_subscriptions
+        SET status='expired'
+        WHERE status='active' AND end_date < CURDATE()
+    """)
+    mysql.connection.commit()
+    cursor.close()
 
 
 # Studio Pricing Page (Route + Logic)
@@ -1319,7 +1319,7 @@ def studio_pricing():
 
     # All plans
     cursor.execute("""
-        SELECT id, name, price, duration_days, max_galleries, watermark, max_storage_gb
+        SELECT id, name, price, duration_days, max_galleries, watermark
         FROM subscription_plans
         ORDER BY price
     """)
@@ -1346,7 +1346,8 @@ def studio_pricing():
         active_plan=active_plan
     )
 
-# Subscribe to Plan
+from datetime import datetime, timedelta
+
 @app.route('/studio/subscribe/<int:plan_id>')
 @login_required
 def studio_subscribe(plan_id):
@@ -1395,54 +1396,6 @@ def studio_subscribe(plan_id):
         cursor.close()
 
 
-
-# Payment Success Redirect
-@app.route('/payment-success')
-def payment_success():
-    payment_id = request.args.get('payment_id')
-    payment_request_id = request.args.get('payment_request_id')
-    status = request.args.get('payment_status')
-
-    if status == "Credit": # 'Credit' means successful in Instamojo
-        cursor = mysql.connection.cursor()
-        cursor.execute("""
-            UPDATE payments SET status='completed', payment_id=%s 
-            WHERE instamojo_id=%s
-        """, (payment_id, payment_request_id))
-        mysql.connection.commit()
-        return render_template("success.html", id=payment_id)
-    
-    return "Payment failed or was cancelled.", 400
-
-
-# Updated Verification Route
-# Since you are using fetch in JavaScript, your verification route needs to return JSON.
-@app.route('/payment/verify', methods=['POST'])
-@login_required
-def verify_payment():
-    data = request.get_json()
-    payment_id = data.get('payment_id')
-    request_id = data.get('payment_request_id')
-
-    # Verify status with Instamojo API
-    payment_details = instamojo_service.api.payment_request_status(request_id)
-    
-    if payment_details['payment_request']['status'] == 'Completed':
-        cursor = mysql.connection.cursor()
-        cursor.execute("""
-            UPDATE payments SET status='success', payment_id=%s 
-            WHERE instamojo_id=%s
-        """, (payment_id, request_id))
-        mysql.connection.commit()
-        cursor.close()
-        return {"success": True}
-    
-    return {"success": False}, 400
-
-
-
-
-
 # Helper to calculate studio storage usage
 def get_studio_storage_usage(cursor, studio_id):
     total_bytes = 0
@@ -1472,7 +1425,6 @@ def get_studio_storage_usage(cursor, studio_id):
             total_bytes += os.path.getsize(abs_path)
 
     return total_bytes / (1024 ** 3)  # GB
-
 
 
 
