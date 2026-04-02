@@ -1355,7 +1355,7 @@ def studio_pricing():
 
     # All plans
     cursor.execute("""
-        SELECT id, name, price, duration_days, max_galleries, watermark
+        SELECT id, name, price, duration_days, max_galleries, max_storage_gb, watermark
         FROM subscription_plans
         ORDER BY price
     """)
