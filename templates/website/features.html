@@ -20,20 +20,44 @@
 <header class="fixed top-0 w-full z-50 glass shadow-sm">
   <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
     <h1 class="text-2xl font-extrabold text-indigo-600">Pic<span class="text-gray-800">Snapify</span></h1>
-    <nav class="space-x-6 hidden md:block">
-      <a href="/" class="hover:text-indigo-600">Home</a>
-      <a href="/features" class="hover:text-indigo-600">Features</a>
-      <a href="/how-it-works" class="hover:text-indigo-600">How it works</a>
-      <a href="/pricing" class="hover:text-indigo-600">Pricing</a>
-      <a href="/contact" class="hover:text-indigo-600">Contact</a>
-      <a href="/browse" class="hover:text-indigo-600">Studios</a>
-      <a href="/login" class="hover:text-indigo-600">Login</a>
+    
+    <nav class="space-x-6 hidden lg:block font-medium">
+      <a href="/" class="hover:text-indigo-600 transition">Home</a>
+      <a href="/features" class="hover:text-indigo-600 transition">Features</a>
+      <a href="/how-it-works" class="hover:text-indigo-600 transition">How it works</a>
+      <a href="/pricing" class="hover:text-indigo-600 transition">Pricing</a>
+      <a href="/contact" class="hover:text-indigo-600 transition">Contact</a>
+      <a href="/browse" class="hover:text-indigo-600 transition">Studios</a>
+      <a href="/login" class="hover:text-indigo-600 transition">Login</a>
     </nav>
-    <a href="/register" class="bg-indigo-600 text-white px-5 py-2 rounded-xl hover:bg-indigo-700 transition">
-      Get Started
-    </a>
+
+    <div class="flex items-center gap-4">
+      <a href="/register" class="hidden sm:block bg-indigo-600 text-white px-5 py-2 rounded-xl hover:bg-indigo-700 transition shadow-md shadow-indigo-200">
+        Get Started
+      </a>
+
+      <button id="menu-btn" class="lg:hidden text-gray-800 focus:outline-none p-2 rounded-lg hover:bg-gray-100 transition">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path id="menu-icon" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div id="mobile-menu" class="hidden lg:hidden absolute top-full left-0 w-full bg-white border-b border-gray-100 shadow-xl animate-in slide-in-from-top duration-300">
+    <nav class="flex flex-col p-6 space-y-4 font-semibold">
+      <a href="/" class="text-gray-600 hover:text-indigo-600 py-2 border-b border-gray-50">Home</a>
+      <a href="/features" class="text-gray-600 hover:text-indigo-600 py-2 border-b border-gray-50">Features</a>
+      <a href="/how-it-works" class="text-gray-600 hover:text-indigo-600 py-2 border-b border-gray-50">How it works</a>
+      <a href="/pricing" class="text-gray-600 hover:text-indigo-600 py-2 border-b border-gray-50">Pricing</a>
+      <a href="/contact" class="text-gray-600 hover:text-indigo-600 py-2 border-b border-gray-50">Contact</a>
+      <a href="/browse" class="text-gray-600 hover:text-indigo-600 py-2 border-b border-gray-50">Studios</a>
+      <a href="/login" class="text-gray-600 hover:text-indigo-600 py-2 border-b border-gray-50">Login</a>
+      <a href="/register" class="sm:hidden bg-indigo-600 text-white px-5 py-3 rounded-xl text-center">Get Started</a>
+    </nav>
   </div>
 </header>
+
 
 <!-- HERO -->
 <section class="pt-32 pb-20 text-center">
@@ -235,6 +259,36 @@
   </div>
 </footer>
 
+  
+<script>
+  const menuBtn = document.getElementById('menu-btn');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const menuIcon = document.getElementById('menu-icon');
+
+  menuBtn.addEventListener('click', () => {
+    const isHidden = mobileMenu.classList.contains('hidden');
+    
+    if (isHidden) {
+      // Open Menu
+      mobileMenu.classList.remove('hidden');
+      // Change to 'X' icon
+      menuIcon.setAttribute('d', 'M6 18L18 6M6 6l12 12');
+    } else {
+      // Close Menu
+      mobileMenu.classList.add('hidden');
+      // Change back to 'Hamburger' icon
+      menuIcon.setAttribute('d', 'M4 6h16M4 12h16M4 18h16');
+    }
+  });
+
+  // Close menu when clicking outside
+  window.addEventListener('click', (e) => {
+    if (!menuBtn.contains(e.target) && !mobileMenu.contains(e.target)) {
+      mobileMenu.classList.add('hidden');
+      menuIcon.setAttribute('d', 'M4 6h16M4 12h16M4 18h16');
+    }
+  });
+</script>
 </body>
 </html>
 
