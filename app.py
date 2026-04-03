@@ -72,11 +72,11 @@ def contact():
 
 @app.route('/privacy-policy')
 def privacy_policy():
-    return render_template('studio/privacy_policy.html')
+    return render_template('website/privacy_policy.html')
 
 @app.route('/terms-and-conditions')
 def terms_condition():
-    return render_template('studio/terms&condition.html')
+    return render_template('website/terms&condition.html')
 
 # ✅
 @app.route('/register', methods=['GET', 'POST'])
